@@ -180,12 +180,15 @@
          (lsp-mode . lsp-enable-which-key-integration))
   :commands lsp-deferred)
 
+(use-package lsp-pyright
+  :hook (python-mode . (lambda() (require 'lsp-pyright)
+			 (lsp))))
 
 (use-package company
   :after lsp-mode
   :hook (prog-mode . company-mode)
   :bind (:map company-active-map
-         ("<tab>" . company-complete-selection))
+         ("<tab>" . company-complete-common))
         (:map lsp-mode-map
          ("<tab>" . company-indent-or-complete-common))
   :custom
