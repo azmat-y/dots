@@ -189,10 +189,11 @@
         (:map lsp-mode-map
          ("<tab>" . company-indent-or-complete-common))
   :custom
-  (company-minimum-prefix-length 1)
-  (company-idle-delay 0.0))
+  (company-minimum-prefix-length 3)
+  (company-idle-delay 0.0)
+  (setq company-tooltip-offset-display 'lines)
+  )
 (global-company-mode)
-
 
 (use-package yasnippet)
 (use-package yasnippet-snippets)
