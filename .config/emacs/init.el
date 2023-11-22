@@ -183,6 +183,18 @@
 (use-package lsp-pyright
   :hook (python-mode . (lambda() (require 'lsp-pyright)
 			 (lsp))))
+(use-package dap-mode
+:after lsp-mode
+:commands dap-debug
+:hook ((python-mode . dap-ui-mode) (python-mode . dap-mode))
+:config
+(require 'dap-python)
+(setq dap-python-debugger 'debugpy)
+;; (defun dap-python--pyenv-executable-find (command)
+;;   (with-venv (executable-find "python")))
+
+(add-hook 'dap-stopped-hook
+	  (lambda (arg) (call-interactively #'dap-hydra))))
 
 (use-package company
   :after lsp-mode
