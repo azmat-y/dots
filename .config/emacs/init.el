@@ -169,10 +169,10 @@
 (use-package lsp-mode
   :init
   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-(setq lsp-enable-symbol-highlighting nil)
-(setq lsp-lens-enable nil)
-(setq lsp-headerline-breadcrumb-enable nil)
-
+  (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-lens-enable nil)
+  (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-modeline-code-actions-segments '(count icon name))
   (setq lsp-keymap-prefix "C-c l")
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
          ((c-mode cc-mode c++-mode python-mode). lsp-deferred)
