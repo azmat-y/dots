@@ -21,7 +21,7 @@
 (setq warning-minimum-level :emergency)
 ;JetBrainsMonoNerdFont
 (set-face-attribute 'default nil :font "JetBrainsMonoNerdFont" :height 120)
-(setq default-frame-alist '((font . "JetBrainsMonoNerdFont")))
+(setq default-frame-alist '((font  . "JetBrainsMonoNerdFont")))
 
 (setq-default display-line-numbers-type 'relative)
 (global-display-line-numbers-mode)
@@ -188,7 +188,7 @@
   :after lsp-mode
   :hook (prog-mode . company-mode)
   :bind (:map company-active-map
-         ("<tab>" . company-complete-common))
+         ("<tab>" . company-complete-selection))
         (:map lsp-mode-map
          ("<tab>" . company-indent-or-complete-common))
   :custom
@@ -197,6 +197,8 @@
   (setq company-tooltip-offset-display 'lines)
   )
 (global-company-mode)
+
+(use-package lsp-treemacs)
 
 (use-package yasnippet)
 (use-package yasnippet-snippets)
