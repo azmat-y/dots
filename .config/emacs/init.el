@@ -9,10 +9,12 @@
 (tool-bar-mode -1)          ; Disable the toolbar
 (tooltip-mode -1)           ; Disable tooltips
 (set-fringe-mode 10)        ; Give some breathing room
+(visual-line-mode 1)
 
 
 (menu-bar-mode -1)            ; Disable the menu bar
 (electric-pair-mode)	      ; completes delimiters like ({["'"]})
+(electric-indent-mode 1)
 
 (dolist (mode '(term-mode-hook
 		vterm-mode-hook))
@@ -120,7 +122,7 @@
 (recentf-mode 1)
 (setq recentf-max-menu-items 25)
 
-(nvmap :states '(normal insert visual emacs) :keymaps 'override :prefix "SPC" :global-prefix "C-SPC"
+(nvmap :states '(normal insert visual emacs) :keymaps 'override :prefix "SPC" :global-prefix "M-SPC"
   "s"   '(:ignore t :wk "search")
   "s i" '(consult-imenu :wk "consult-imenu")
   "s r" '(consult-ripgrep :wk "consult-ripgrep")
@@ -155,6 +157,8 @@
 (define-key evil-visual-state-map  (kbd "C-g") #'evil-force-normal-state)
 (define-key evil-operator-state-map (kbd "C-g") #'evil-force-normal-state)
 
+(define-key evil-insert-state-map (kbd "<return>") 'newline)
+
 (use-package embark)
 (use-package embark-consult)
 
@@ -166,6 +170,7 @@
   :config
   (evil-goggles-mode))
 
+
 (use-package lsp-mode
   :init
   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
@@ -175,10 +180,13 @@
   (setq lsp-modeline-code-actions-segments '(count icon name))
   (setq lsp-keymap-prefix "C-c l")
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-         ((c-mode cc-mode c++-mode python-mode). lsp-deferred)
+         ((c-mode c++-mode python-mode). lsp-deferred)
          ;; if you want which-key integration
          (lsp-mode . lsp-enable-which-key-integration))
   :commands lsp-deferred)
+
+(setq c-default-style "k&r")
+(setq-default c-basic-offset 2)
 
 (use-package lsp-pyright
   :hook (python-mode . (lambda() (require 'lsp-pyright)
@@ -188,7 +196,16 @@
 :commands dap-debug
 :hook ((python-mode . dap-ui-mode) (python-mode . dap-mode))
 :config
+(require 'dap-gdb-lldb)
 (require 'dap-python)
+(setq dap-lldb-debug-program "/usr/bin/lldb-vscode")
+(dap-register-debug-template
+  "LLDB::Run"
+  (list :type "lldb-mi"
+        :request "launch"
+        :name "LLDB::Run"
+        :target nil
+        :cwd nil))
 (setq dap-python-debugger 'debugpy)
 ;; (defun dap-python--pyenv-executable-find (command)
 ;;   (with-venv (executable-find "python")))
@@ -229,7 +246,7 @@
   )
 (add-hook 'prog-mode-hook (lambda () (anzu-mode 1)))
 
-(nvmap :states '(normal insert visual emacs) :keymaps 'override :prefix "SPC" :global-prefix "C-SPC"
+(nvmap :states '(normal insert visual emacs) :keymaps 'override :prefix "SPC" :global-prefix "M-SPC"
   "E  " '(embark-act :wk "embark-act")
   "c  " '(:ignroe t :wk "code")
 ;  "c l" '(lsp-keymap-prefix :wk "lsp")
@@ -246,13 +263,13 @@
 
 
 (winner-mode 1)
-(nvmap :states '(normal insert visual emacs) :keymaps 'override :prefix "SPC" :global-prefix "C-SPC"
-       ;; Window splits
+(nvmap :states '(normal insert visual emacs) :keymaps 'override :prefix "SPC" :global-prefix "M-SPC"
+       ;; Window SplitS
        "w c"   '(evil-window-delete :which-key "Close window")
        "w n"   '(evil-window-new :which-key "New window")
        "w s"   '(evil-window-split :which-key "Horizontal split window")
        "w v"   '(evil-window-vsplit :which-key "Vertical split window")
-       ;; Window motions
+       ;; Window MotionS
        "w h"   '(evil-window-left :which-key "Window left")
        "w j"   '(evil-window-down :which-key "Window down")
        "w k"   '(evil-window-up :which-key "Window up")
