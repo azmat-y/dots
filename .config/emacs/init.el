@@ -9,8 +9,7 @@
 (tool-bar-mode -1)          ; Disable the toolbar
 (tooltip-mode -1)           ; Disable tooltips
 (set-fringe-mode 10)        ; Give some breathing room
-(visual-line-mode 1)
-
+(global-visual-line-mode)
 
 (menu-bar-mode -1)            ; Disable the menu bar
 (electric-pair-mode)	      ; completes delimiters like ({["'"]})
@@ -22,8 +21,8 @@
 
 (setq warning-minimum-level :emergency)
 ;JetBrainsMonoNerdFont
-(set-face-attribute 'default nil :font "JetBrainsMonoNerdFont" :height 120)
-(setq default-frame-alist '((font  . "JetBrainsMonoNerdFont")))
+(set-face-attribute 'default nil :font "HackNerdFontMono" :height 120)
+(setq default-frame-alist '((font  . "HackNerdFontMono")))
 
 (setq-default display-line-numbers-type 'relative)
 (global-display-line-numbers-mode)
@@ -162,13 +161,17 @@
 (use-package embark-consult)
 
 (require 'bind-key)
-(bind-key "C-," #'embark-act)
+(bind-key "C-," #'embaek-act)
+
+(use-package surround
+ :bind-keymap ("M-'" . surround-keymap))
 
 (use-package evil-goggles
   :ensure t
   :config
   (evil-goggles-mode))
 
+(global-set-key (kbd "M-o") #'ace-window)
 
 (use-package lsp-mode
   :init
