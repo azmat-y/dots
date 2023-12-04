@@ -51,8 +51,6 @@
 (use-package doom-themes)
 
 (use-package nerd-icons)
-(use-package doom-modeline
-  :hook (after-init . doom-modeline-mode))
 
 (use-package evil
   :init      ;; tweak evil's configuration before loading it
@@ -115,7 +113,7 @@
 
 ; (consult-theme 'doom-solarized-dark-high-contrast)
 ; (consult-theme 'wombat)
-(consult-theme 'doom-monokai-pro)
+(consult-theme 'atom-one-dark)
 
 ;; recentf stuff
 (require 'recentf)
@@ -149,6 +147,7 @@
 (use-package projectile)
 (projectile-mode +1)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+(setq projectile-project-search-path '("/home/azmat/Programming/Projects"))
 
 ; for using C-g to quit normal mode
 
