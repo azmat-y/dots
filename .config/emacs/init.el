@@ -48,7 +48,6 @@
 (setq use-package-always-ensure t)
 
 (use-package doom-themes)
-
 (use-package nerd-icons)
 
 (use-package evil
@@ -110,15 +109,14 @@
 (use-package consult)
 (use-package imenu-list)
 
-; (consult-theme 'doom-solarized-dark-high-contrast)
-; (consult-theme 'wombat)
-(consult-theme 'atom-one-dark)
+(consult-theme 'doom-solarized-dark-high-contrast)
 
 ;; recentf stuff
 (require 'recentf)
 (recentf-mode 1)
 (setq recentf-max-menu-items 25)
 
+(general-auto-unbind-keys)
 (nvmap :states '(normal insert visual emacs) :keymaps 'override :prefix "SPC" :global-prefix "M-SPC"
   "s"   '(:ignore t :wk "search")
   "s i" '(consult-imenu :wk "consult-imenu")
@@ -140,7 +138,9 @@
   "e  " '(:ignore t :wk "eval")
   "e r" '(eval-region :wk "eval-region")
   "e b" '(eval-buffer :wk "eval-buffer")
-  "g  " '(magit-status :wk "magit-status")
+  "g  " '(:ignore t :wk "magit")
+  "g s" '(magit-status :wk "magit-status")
+  "g b" '(magit-blame :wk "magit-blame")
   )
 
 (use-package projectile)
@@ -156,6 +156,7 @@
 (define-key evil-operator-state-map (kbd "C-g") #'evil-force-normal-state)
 
 (define-key evil-insert-state-map (kbd "<return>") 'newline)
+(evil-set-initial-state 'gud-mode 'emacs)
 
 (use-package embark)
 (use-package embark-consult)
@@ -314,7 +315,7 @@
 
 (setq smerge-command-prefix "\C-cv")
 
-(hl-line-mode)
+(global-hl-line-mode 1)
 (setq gc-cons-threshold 20000000) ; allocates more 20MB for emacs than default 0.76MB so that GC doesn't run as often
 (setq sentence-end-double-space nil)
 (setq-default dired-listing-switches "-alh")
@@ -324,14 +325,24 @@
 (setq visible-bell t)
 (setq create-lockfiles nil)
 (setq mouse-yank-at-point t)
+(advice-add 'ediff-window-display-p :override #'ignore)
 (add-hook 'before-save-hook 'delete-trailing-whitespace) ;remove trailing whitespace on save
-;; (setq tab-always-indent 'complete)
+(setq backup-directory-alist            '((".*" . "/home/azmat/.emacs_backups")));; (setq tab-always-indent 'complete)
 ;; (add-to-list 'completion-styles 'initials t)
 (defun my/disable-scroll-bars (frame)
   (modify-frame-parameters frame
                            '((vertical-scroll-bars . nil)
                              (horizontal-scroll-bars . nil))))
 (add-hook 'after-make-frame-functions 'my/disable-scroll-bars)
+
+(defun my/close-tool-bar ()
+  "close tool bar after exiting gud-mode"
+  (when (eq major-mode 'gud-mode)
+    (tool-bar-mode -1)
+    (message "closing tool bar")))
+
+(add-hook 'kill-buffer-hook #'my/close-tool-bar)
+(add-hook 'gdb-mode-hook (lambda () (gdb-many-windows) (tool-bar-mode)))
 
 (setq org-src-fontify-natively t
     org-src-tab-acts-natively t
@@ -350,13 +361,15 @@
 (setq org-default-notes-file (concat org-directory "/notes.org"))
 (setq org-list-indent-offset 2)
 (setq org-ellipsis " ▼")
+(setq org-startup-indented t)
+(add-hook 'after-init-hook 'org-agenda-list)
 (setq org-capture-templates
       '(("t"              ; hotkey
 	 "TODO List item" ; name
 	 entry            ; type
 	 ; heading type and title
 	 (file+headline org-default-notes-file "Tasks")
-	 "* TODO %?\n %i\n %a")
+	 "* TODO %?\n %i\n%a\n")
 	("j"
 	 "Journal Entry"
 	 entry
