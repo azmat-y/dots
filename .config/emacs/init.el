@@ -28,6 +28,13 @@
 (global-display-line-numbers-mode)
 (column-number-mode)
 
+;; package to automatically zooom the focused window
+
+(use-package zoom)
+(custom-set-variables
+ '(zoom-size '(0.618 . 0.618)))
+(global-set-key (kbd "C-x +") 'zoom)
+
 ;; Initialize package sources
 (require 'package)
 
