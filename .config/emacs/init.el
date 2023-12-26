@@ -195,6 +195,9 @@
          (lsp-mode . lsp-enable-which-key-integration))
   :commands lsp-deferred)
 
+(use-package cmake-mode
+  :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
+
 (setq c-default-style "k&r")
 (setq-default c-basic-offset 2)
 
