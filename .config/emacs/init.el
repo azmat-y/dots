@@ -9,7 +9,7 @@
 (tool-bar-mode -1)          ; Disable the toolbar
 (tooltip-mode -1)           ; Disable tooltips
 (set-fringe-mode 10)        ; Give some breathing room
-(global-visual-line-mode)
+(global-visual-line-mode 1)
 
 (menu-bar-mode -1)            ; Disable the menu bar
 (electric-pair-mode)	      ; completes delimiters like ({["'"]})
@@ -109,7 +109,7 @@
 (use-package consult)
 (use-package imenu-list)
 
-(consult-theme 'doom-solarized-dark-high-contrast)
+(consult-theme 'standard-dark)
 
 ;; recentf stuff
 (require 'recentf)
@@ -156,7 +156,7 @@
 (define-key evil-operator-state-map (kbd "C-g") #'evil-force-normal-state)
 
 (define-key evil-insert-state-map (kbd "<return>") 'newline)
-(evil-set-initial-state 'gud-mode 'emacs)
+(evil-set-initial-state 'comint-mode 'emacs)
 
 (use-package embark)
 (use-package embark-consult)
@@ -255,7 +255,8 @@
 ;  "c l" '(lsp-keymap-prefix :wk "lsp")
   "s l" '(consult-line :wk "consult line")
 
-
+  "l "  '(:ignore t :wk "lsp")
+  "l e" '(lsp-treemacs-errors-list :wk "errors")
   "l s" '(consult-lsp-file-symbols :wk "lsp-file-symbols")
   "c c" '(compile :wk "compile")
   "o  " '(:ignore t :wk "org")
@@ -335,14 +336,7 @@
                              (horizontal-scroll-bars . nil))))
 (add-hook 'after-make-frame-functions 'my/disable-scroll-bars)
 
-(defun my/close-tool-bar ()
-  "close tool bar after exiting gud-mode"
-  (when (eq major-mode 'gud-mode)
-    (tool-bar-mode -1)
-    (message "closing tool bar")))
-
-(add-hook 'kill-buffer-hook #'my/close-tool-bar)
-(add-hook 'gdb-mode-hook (lambda () (gdb-many-windows) (tool-bar-mode)))
+(add-hook 'gdb-mode-hook (lambda () (gdb-many-windows)))
 
 (setq org-src-fontify-natively t
     org-src-tab-acts-natively t
