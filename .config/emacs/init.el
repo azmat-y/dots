@@ -368,13 +368,17 @@
 (setq org-ellipsis " ▼")
 (setq org-startup-indented t)
 (add-hook 'after-init-hook 'org-agenda-list)
+
+(setq org-todo-keywords
+      '((sequence "TODO" "FEEDBACK" "VERIFY" "|" "DONE" "SCRAPED")))
+
 (setq org-capture-templates
       '(("t"              ; hotkey
 	 "TODO List item" ; name
 	 entry            ; type
 	 ; heading type and title
 	 (file+headline org-default-notes-file "Tasks")
-	 "* TODO %?\n %i\n%a\n")
+	 "* TODO %?\n %i\n%a \n")
 	("j"
 	 "Journal Entry"
 	 entry
