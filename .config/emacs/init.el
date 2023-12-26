@@ -205,20 +205,21 @@
   :hook (python-mode . (lambda() (require 'lsp-pyright)
 			 (lsp))))
 (use-package dap-mode
-:after lsp-mode
-:commands dap-debug
-:hook ((python-mode . dap-ui-mode) (python-mode . dap-mode))
-:config
-(require 'dap-gdb-lldb)
-(require 'dap-python)
-(setq dap-lldb-debug-program "/usr/bin/lldb-vscode")
-(dap-register-debug-template
-  "LLDB::Run"
-  (list :type "lldb-mi"
-        :request "launch"
-        :name "LLDB::Run"
-        :target nil
-        :cwd nil))
+  :after lsp-mode
+  :commands dap-debug
+  :hook ((python-mode . dap-ui-mode) (python-mode . dap-mode))
+  :config
+  (require 'dap-gdb-lldb)
+  (require 'dap-python)
+  (require 'dap-lldb)
+  (setq dap-lldb-debug-program "/usr/bin/lldb-vscode")
+  (dap-register-debug-template
+   "LLDB::Run custom"
+   (list :type "lldb-vscode"
+         :request "launch"
+         :name "LLDB::Run"
+         :target nil
+         :cwd nil))
 (setq dap-python-debugger 'debugpy)
 ;; (defun dap-python--pyenv-executable-find (command)
 ;;   (with-venv (executable-find "python")))
