@@ -34,8 +34,18 @@
 (custom-set-variables
  '(zoom-size '(0.618 . 0.618)))
 (global-set-key (kbd "C-x +") 'zoom)
+(global-set-key (kbd "<f8>") 'zoom-mode)
 
-;; Initialize package sources
+(use-package spacious-padding)
+(setq spacious-padding-widths
+      '( :internal-border-width 15
+         :header-line-width 4
+         :mode-line-width 3
+         :tab-width 4
+         :right-divider-width 20
+         :scroll-bar-width 8))
+(spacious-padding-mode)
+;; Initialize package source
 (require 'package)
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
