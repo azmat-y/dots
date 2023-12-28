@@ -26,7 +26,6 @@
 
 (setq-default display-line-numbers-type 'relative)
 (global-display-line-numbers-mode)
-(column-number-mode)
 
 ;; package to automatically zooom the focused window
 
@@ -66,6 +65,11 @@
 
 (use-package doom-themes)
 (use-package nerd-icons)
+
+(use-package doom-modeline
+  :init
+  (setq doom-modeline-project-detection 'file-name)
+  (doom-modeline-mode 1))
 
 (use-package evil
   :init      ;; tweak evil's configuration before loading it
