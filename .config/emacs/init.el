@@ -43,7 +43,7 @@
          :tab-width 4
          :right-divider-width 20
          :scroll-bar-width 8))
-(spacious-padding-mode)
+(spacious-padding-mode -1)
 ;; Initialize package source
 (require 'package)
 
@@ -130,7 +130,7 @@
 (use-package consult)
 (use-package imenu-list)
 
-(consult-theme 'standard-dark)
+(consult-theme 'doom-monokai-classic)
 
 ;; recentf stuff
 (require 'recentf)
