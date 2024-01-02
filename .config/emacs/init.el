@@ -204,7 +204,7 @@
   (setq lsp-modeline-code-actions-segments '(count icon name))
   (setq lsp-keymap-prefix "C-c l")
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-         ((c-mode c++-mode python-mode). lsp-deferred)
+         ((c-ts-mode c++-ts-mode python-ts-mode). lsp-deferred)
          ;; if you want which-key integration
          (lsp-mode . lsp-enable-which-key-integration))
   :commands lsp-deferred)
@@ -216,12 +216,12 @@
 (setq-default c-basic-offset 2)
 
 (use-package lsp-pyright
-  :hook (python-mode . (lambda() (require 'lsp-pyright)
+  :hook (python-ts-mode . (lambda() (require 'lsp-pyright)
 			 (lsp))))
 (use-package dap-mode
   :after lsp-mode
   :commands dap-debug
-  :hook ((python-mode . dap-ui-mode) (python-mode . dap-mode))
+  :hook ((python-ts-mode . dap-ui-mode) (python-ts-mode . dap-mode))
   :config
   (require 'dap-gdb-lldb)
   (require 'dap-python)
@@ -319,12 +319,28 @@
   ([remap describe-variable] . helpful-variable)
   ([remap describe-key] . helpful-key))
 
-(use-package tree-sitter)
-(use-package tree-sitter-langs)
-(require 'tree-sitter)
-(require 'tree-sitter-langs)
-(global-tree-sitter-mode)
-(add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+;; (use-package tree-sitter)
+;; (use-package tree-sitter-langs)
+;; (require 'tree-sitter)
+;; (require 'tree-sitter-langs)
+;; (global-tree-sitter-mode)
+;; (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+
+(setq major-mode-remap-alist
+      '((c++-mode . c++-ts-mode)
+	(python-mode . python-ts-mode)))
+
+(require 'treesit)
+(use-package treesit
+  :ensure nil
+  :custom
+  (treesit-language-source-alist '((cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+				   (python "https://github.com/tree-sitter/tree-sitter-python")
+				   (c "https://github.com/tree-sitter/tree-sitter-c")))
+  (major-mode-remap-alist '((c++-mode . c++-ts-mode)
+			    (python-mode . python-ts-mode)
+			    (c-mode . c-ts-mode)))
+  (treesit-font-lock-level 4))
 
 (use-package org-bullets
   :after org
