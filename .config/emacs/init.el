@@ -198,11 +198,15 @@
 (use-package lsp-mode
   :init
   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-  (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-enable-symbol-highlighting t)
   (setq lsp-lens-enable nil)
   (setq lsp-headerline-breadcrumb-enable nil)
   (setq lsp-modeline-code-actions-segments '(count icon name))
+  (setq lsp-signature-render-documentation nil)
+  (lsp-inlay-hints-mode 1)
   (setq lsp-keymap-prefix "C-c l")
+  :config
+  (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
          ((c-ts-mode c++-ts-mode python-ts-mode). lsp-deferred)
          ;; if you want which-key integration
