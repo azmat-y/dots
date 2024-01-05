@@ -362,8 +362,10 @@
 (setq smerge-command-prefix "\C-cv")
 
 (global-hl-line-mode 1)
-(setq gc-cons-threshold 20000000) ; allocates more 20MB for emacs than default 0.76MB so that GC doesn't run as often
+(setq gc-cons-threshold 100000000) ; allocates more 20MB for emacs than default 0.76MB so that GC doesn't run as often
 (setq sentence-end-double-space nil)
+(setq read-process-output-max (* 1024 1024)) ;; 1mb Increase the amount of data which Emacs reads from the process
+(setq lsp-use-plists t)
 (setq-default dired-listing-switches "-alh")
 (fset 'yes-or-no-p 'y-or-n-p)
 (show-paren-mode t)
