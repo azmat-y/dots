@@ -21,8 +21,8 @@
 
 (setq warning-minimum-level :emergency)
 ;JetBrainsMonoNerdFont
-(set-face-attribute 'default nil :font "HackNerdFontMono" :height 120)
-(setq default-frame-alist '((font  . "HackNerdFontMono")))
+(set-face-attribute 'default nil :font "JetBrainsMonoNerdFont" :height 140)
+(setq default-frame-alist '((font  . "JetBrainsMonoNerdFont")))
 
 (setq-default display-line-numbers-type 'relative)
 (global-display-line-numbers-mode)
@@ -111,6 +111,8 @@
 
 (use-package vterm)
 (use-package magit)
+(use-package forge
+  :after magit)
 ;; Enable rich annotations using the Marginalia package
 (use-package marginalia
   ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
