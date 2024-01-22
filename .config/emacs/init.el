@@ -247,28 +247,6 @@
 (use-package lsp-pyright
   :hook (python-ts-mode . (lambda() (require 'lsp-pyright)
 			 (lsp))))
-(use-package dap-mode
-  :after lsp-mode
-  :commands dap-debug
-  :hook ((python-ts-mode . dap-ui-mode) (python-ts-mode . dap-mode))
-  :config
-  (require 'dap-gdb-lldb)
-  (require 'dap-python)
-  (require 'dap-lldb)
-  (setq dap-lldb-debug-program "/usr/bin/lldb-vscode")
-  (dap-register-debug-template
-   "LLDB::Run custom"
-   (list :type "lldb-vscode"
-         :request "launch"
-         :name "LLDB::Run"
-         :target nil
-         :cwd nil))
-(setq dap-python-debugger 'debugpy)
-;; (defun dap-python--pyenv-executable-find (command)
-;;   (with-venv (executable-find "python")))
-
-(add-hook 'dap-stopped-hook
-	  (lambda (arg) (call-interactively #'dap-hydra))))
 
 (use-package company
   :after lsp-mode
