@@ -281,6 +281,12 @@
   )
 (add-hook 'prog-mode-hook (lambda () (anzu-mode 1)))
 
+(use-package dap-mode
+  :init
+  (require 'dap-gdb-lldb)
+  (dap-gdb-lldb-setup)
+  (dap-auto-configure-mode))
+
 (nvmap :states '(normal insert visual emacs) :keymaps 'override :prefix "SPC" :global-prefix "M-SPC"
   "E  " '(embark-act :wk "embark-act")
   "c  " '(:ignroe t :wk "code")
