@@ -21,7 +21,7 @@
 
 (setq warning-minimum-level :emergency)
 ;JetBrainsMonoNerdFont
-(set-face-attribute 'default nil :font "JetBrainsMonoNerdFont" :height 140)
+(set-face-attribute 'default nil :font "JetBrainsMonoNerdFont" :height 120)
 (setq default-frame-alist '((font  . "JetBrainsMonoNerdFont")))
 
 (setq-default display-line-numbers-type 'relative)
@@ -450,5 +450,16 @@
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((emacs-lisp . t)
-   (python . t)
-   ))
+   (python . t)))
+
+
+(evil-set-initial-state 'compilation-mode 'emacs)
+(use-package compile
+  :ensure nil
+  :defer t
+  :hook ((compilation-filter . ansi-color-compilation-filter))
+  :bind (("C-x C-m" . recompile))
+  :config
+  (setopt compilation-scroll-output t)
+  (setopt compilation-ask-about-save nil)
+  (require 'ansi-color))
