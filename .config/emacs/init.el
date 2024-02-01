@@ -196,6 +196,7 @@
   (evil-goggles-mode))
 
 (global-set-key (kbd "M-o") #'ace-window)
+(global-set-key (kbd "C-c h") #'dap-hydra)
 
 (use-package lsp-mode
   :init
@@ -283,9 +284,9 @@
 
 (use-package dap-mode
   :init
+  (setq dap-auto-configure-features '(sessions locals tooltip))
   (require 'dap-gdb-lldb)
-  (dap-gdb-lldb-setup)
-  (dap-auto-configure-mode))
+  (dap-gdb-lldb-setup))
 
 (nvmap :states '(normal insert visual emacs) :keymaps 'override :prefix "SPC" :global-prefix "M-SPC"
   "E  " '(embark-act :wk "embark-act")
