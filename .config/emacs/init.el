@@ -9,6 +9,7 @@
 (tool-bar-mode -1)          ; Disable the toolbar
 (tooltip-mode -1)           ; Disable tooltips
 (set-fringe-mode 10)        ; Give some breathing room
+(global-subword-mode)		    ; Convienience for camelcase
 (global-visual-line-mode 1)
 
 (menu-bar-mode -1)            ; Disable the menu bar
@@ -132,7 +133,7 @@
 (use-package consult)
 (use-package imenu-list)
 
-(consult-theme 'doom-monokai-classic)
+(consult-theme 'standard-dark)
 
 ;; recentf stuff
 (require 'recentf)
@@ -180,6 +181,8 @@
 
 (define-key evil-insert-state-map (kbd "<return>") 'newline)
 (evil-set-initial-state 'comint-mode 'emacs)
+(evil-set-initial-state 'shell-mode 'emacs)
+(evil-set-initial-state 'vterm-mode 'emacs)
 
 (use-package embark)
 (use-package embark-consult)
