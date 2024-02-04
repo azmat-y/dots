@@ -305,6 +305,10 @@
   "o c" '(org-capture :wk "org-capture")
   "o f" '(org-open-at-point :wk "org-open-at-point")
   "o a" '(org-agenda :wk "org-agenda")
+
+  "d  " '(:ignore t :wk "dap-mode")
+  "d d" '(dap-debug :wk "dap-debug")
+  "d l" '(dap-debug-last :wk "dap-debug-last")
 )
 
 
