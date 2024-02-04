@@ -470,3 +470,6 @@
   (setopt compilation-scroll-output t)
   (setopt compilation-ask-about-save nil)
   (require 'ansi-color))
+
+(use-package command-log-mode)
+(setq auth-sources '("~/.authinfo.gpg"))
