@@ -413,7 +413,7 @@
 (setq org-agenda-span 'week)
 (setq org-directory "~/Org")
 (setq org-hide-leading-stars t)
-(setq org-hide-emphasis-markers t)
+(setq org-hide-emphasis-markers nil)
 (setq org-log-done 'time)
 (setq org-export-coding-system 'utf-8)
 (setq org-return-follows-link  t)
@@ -462,7 +462,6 @@
  '((emacs-lisp . t)
    (python . t)))
 
-
 (evil-set-initial-state 'compilation-mode 'emacs)
 (use-package compile
   :ensure nil
@@ -476,3 +475,13 @@
 
 (use-package command-log-mode)
 (setq auth-sources '("~/.authinfo.gpg"))
+
+;; So that swithhing to buffer also causes display action rules
+(setq switch-to-buffer-obey-display-actions t)
+(global-set-key [remap dabbrev-expand] 'hippie-expand)
+(global-set-key (kbd "C-x C-b") #'ibuffer)
+
+;; make tooltip use echo area
+(tooltip-mode -1)
+(setq tooltip-use-echo-area t)
+
