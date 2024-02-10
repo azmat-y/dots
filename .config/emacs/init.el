@@ -516,18 +516,19 @@
               "*Occur*"))
       display-buffer-reuse-window
       (inhibit-same-window . nil))
-
+     ;; Yes there is a lot of repition here I could not get `(,(rx))
+     ;; expression to work for me
      ("\\*vterm\\*"
       display-buffer-in-direction
       (direction . bottom)
       (window . root)
-      (window-height . 0.3))
+      (window-height . 0.35))
 
      ("\\*compilation\\*"
       display-buffer-in-direction
       (direction . bottom)
       (window . root)
-      (window-height . 0.3))
+      (window-height . 0.35))
 
      ("\\*lsp-help\\*"
       display-buffer-in-direction
@@ -535,9 +536,15 @@
       (window . root)
       (window-width . 0.5))
 
+
+     ("\\*Occur\\*"
+      display-buffer-in-direction
+      (direction . bottom)
+      (window . root)
+      (window-height . 0.35))
+
      ("\\*Help\\*"
       display-buffer-in-direction
       (direction . right)
       (window . root)
-      (window-width . 0.5))))
-  )
+      (window-width . 0.5)))))
