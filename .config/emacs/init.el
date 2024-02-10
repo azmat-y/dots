@@ -523,6 +523,12 @@
       (window . root)
       (window-height . 0.3))
 
+     ("\\*compilation\\*"
+      display-buffer-in-direction
+      (direction . bottom)
+      (window . root)
+      (window-height . 0.3))
+
      ("\\*lsp-help\\*"
       display-buffer-in-direction
       (direction . right)
