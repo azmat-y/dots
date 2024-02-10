@@ -485,3 +485,22 @@
 (tooltip-mode -1)
 (setq tooltip-use-echo-area t)
 
+(eval-when-compile
+  (require 'cl))
+
+(defun get-buffer-matching-mode (mode)
+  "Return a list of buffers where their major mode is equal to MODE"
+  (let ((buffer-mode-matches '()))
+  (dolist (buf (buffer-list))
+    (with-current-buffer buf
+      (when (eq mode major-mode)
+	(push buf buffer-mode-matches))))
+  buffer-mode-matches))
+
+(defun multi-occur-in-this-mode ()
+  "Show all lines matching REGEXP in buffers with this major-mode"
+  (interactive)
+  (multi-occur
+   (get-buffer-matching-mode major-mode)
+   (car (occur-read-primary-args))))
+(global-set-key (kbd "M-s M-o") #'multi-occur-in-this-mode)
