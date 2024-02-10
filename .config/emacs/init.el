@@ -26,7 +26,7 @@
 (setq default-frame-alist '((font  . "JetBrainsMonoNerdFont")))
 
 (setq-default display-line-numbers-type 'relative)
-(global-display-line-numbers-mode)
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
 ;; package to automatically zooom the focused window
 
@@ -98,7 +98,8 @@
 ;; Enable vertico
 (use-package vertico
   :init
-  (vertico-mode))
+  (vertico-mode)
+  (vertico-flat-mode))
 
 ;; Persist history over Emacs restarts. Vertico sorts by history position.
 (use-package savehist
@@ -133,7 +134,7 @@
 (use-package consult)
 (use-package imenu-list)
 
-(consult-theme 'standard-dark)
+(consult-theme 'doom-monokai-classic)
 
 ;; recentf stuff
 (require 'recentf)
@@ -385,6 +386,7 @@
 (setq lsp-use-plists t)
 (setq-default dired-listing-switches "-alh")
 (fset 'yes-or-no-p 'y-or-n-p)
+(setq confirm-nonexistent-file-or-buffer nil)
 (show-paren-mode t)
 (setq show-paren-delay 0.0)
 (setq visible-bell t)
