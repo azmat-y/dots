@@ -504,3 +504,34 @@
    (get-buffer-matching-mode major-mode)
    (car (occur-read-primary-args))))
 (global-set-key (kbd "M-s M-o") #'multi-occur-in-this-mode)
+
+(use-package window
+  :ensure nil
+  :custom
+  (window-sides-slots '(0 0 1 0))
+  (display-buffer-alist
+   '(
+     (,(rx (| "*xref*"
+              "*grep*"
+              "*Occur*"))
+      display-buffer-reuse-window
+      (inhibit-same-window . nil))
+
+     ("\\*vterm\\*"
+      display-buffer-in-direction
+      (direction . bottom)
+      (window . root)
+      (window-height . 0.3))
+
+     ("\\*lsp-help\\*"
+      display-buffer-in-direction
+      (direction . right)
+      (window . root)
+      (window-width . 0.5))
+
+     ("\\*Help\\*"
+      display-buffer-in-direction
+      (direction . right)
+      (window . root)
+      (window-width . 0.5))))
+  )
