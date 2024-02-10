@@ -257,15 +257,24 @@
 (use-package company
   :after lsp-mode
   :hook (prog-mode . company-mode)
-  :bind (:map company-active-map
+  :bind ((:map company-active-map
          ("<tab>" . company-complete-selection))
         (:map lsp-mode-map
-         ("<tab>" . company-indent-or-complete-common))
+         ("<tab>" . company-indent-or-complete-common)))
+  :init
+  (setq company-tooltip-align-annotations nil)
+  (setq company-tooltip-minimum 4)
+  (setq company-tooltip-flip-when-above t)
   :custom
+  (company-icon-size 18)
   (company-minimum-prefix-length 3)
   (company-idle-delay 0.0)
-  (setq company-tooltip-offset-display 'lines)
-  )
+  (company-text-face-extra-attributes
+	'(:weight bold :slant italic))
+  (company-transformers '(delete-consecutive-dups
+                          company-sort-by-occurrence))
+
+  (company-tooltip-offset-display 'lines))
 (global-company-mode)
 
 (use-package lsp-treemacs)
