@@ -171,6 +171,7 @@
 (use-package projectile)
 (projectile-mode +1)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+(define-key projectile-mode-map (kbd "C-c p s f") 'flymake-show-project-diagnostics)
 (setq projectile-project-search-path '("/home/azmat/Programming/Projects"))
 
 ; for using C-g to quit normal mode
