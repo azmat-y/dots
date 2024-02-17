@@ -200,6 +200,9 @@
   :config
   (evil-goggles-mode))
 
+(use-package ace-window
+  :init
+  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
 (global-set-key (kbd "M-o") #'ace-window)
 (global-set-key (kbd "C-c h") #'dap-hydra)
 
