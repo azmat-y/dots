@@ -520,7 +520,8 @@
 (use-package window
   :ensure nil
   :custom
-  (window-sides-slots '(0 0 1 0))
+  ; left,  top, right, bottom
+  (window-sides-slots '(1 0 1 1))
   (display-buffer-alist
    '(
      (,(rx (| "*xref*"
