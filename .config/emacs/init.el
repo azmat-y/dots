@@ -561,3 +561,5 @@
       (direction . right)
       (window . root)
       (window-width . 0.5)))))
+(put 'downcase-region 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
