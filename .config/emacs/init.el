@@ -35,7 +35,9 @@
 (global-set-key (kbd "C-x +") 'zoom)
 (global-set-key (kbd "<f8>") 'zoom-mode)
 
-(use-package spacious-padding)
+(use-package spacious-padding
+  :ensure t)
+
 (setq spacious-padding-widths
       '( :internal-border-width 15
          :header-line-width 4
@@ -91,19 +93,20 @@
   :config
   (general-evil-setup t))
 
-(use-package which-key)
-(which-key-mode)
+(use-package which-key
+  :init
+  (which-key-mode))
 
 ;; Enable vertico
 (use-package vertico
   :init
-  (vertico-mode)
-  (vertico-flat-mode))
+  (vertico-mode))
 
 ;; Persist history over Emacs restarts. Vertico sorts by history position.
 (use-package savehist
   :init
   (savehist-mode))
+
 
 (use-package orderless
   :custom
@@ -185,6 +188,7 @@
 (evil-set-initial-state 'comint-mode 'emacs)
 (evil-set-initial-state 'shell-mode 'emacs)
 (evil-set-initial-state 'vterm-mode 'emacs)
+(evil-set-initial-state 'Info-mode 'emacs)
 
 (use-package embark)
 (use-package embark-consult)
@@ -248,6 +252,7 @@
       orig-result)))
 
 (use-package cmake-mode
+  :ensure t
   :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
 
 (setq c-default-style "k&r")
