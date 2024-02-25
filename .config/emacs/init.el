@@ -8,9 +8,8 @@
 (scroll-bar-mode -1)        ; Disable visible scrollbar
 (tool-bar-mode -1)          ; Disable the toolbar
 (tooltip-mode -1)           ; Disable tooltips
-(set-fringe-mode 10)        ; Give some breathing room
-(global-subword-mode)		    ; Convienience for camelcase
 (global-visual-line-mode 1)
+(set-fringe-mode 5)
 
 (menu-bar-mode -1)            ; Disable the menu bar
 (electric-pair-mode)	      ; completes delimiters like ({["'"]})
@@ -22,8 +21,8 @@
 
 (setq warning-minimum-level :emergency)
 ;JetBrainsMonoNerdFont
-(set-face-attribute 'default nil :font "JetBrainsMonoNerdFont" :height 120)
-(setq default-frame-alist '((font  . "JetBrainsMonoNerdFont")))
+(set-face-attribute 'default nil :font "LiterationMonoNerdFont" :height 120)
+(setq default-frame-alist '((font  . "LiterationMonoNerdFont")))
 
 (setq-default display-line-numbers-type 'relative)
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
@@ -134,7 +133,8 @@
 (use-package consult)
 (use-package imenu-list)
 
-(consult-theme 'doom-monokai-classic)
+(consult-theme 'modus-vivendi)
+(global-set-key (kbd "M-s b") #'consult-buffer)
 
 ;; recentf stuff
 (require 'recentf)
@@ -159,7 +159,7 @@
   "b n" '(next-buffer :wk "next-buffer")
   "f  " '(:ignore t :wk "files")
   "f f" '(find-file :wk "find-file")
-  "f r" '(recentf-open-files :wk "recent-files")
+  "f r" '(consult-recent-file :wk "recent-files")
   "e  " '(:ignore t :wk "eval")
   "e r" '(eval-region :wk "eval-region")
   "e b" '(eval-buffer :wk "eval-buffer")
@@ -397,12 +397,13 @@
 (setq sentence-end-double-space nil)
 (setq read-process-output-max (* 1024 1024)) ;; 1mb Increase the amount of data which Emacs reads from the process
 (setq lsp-use-plists t)
-(setq-default dired-listing-switches "-alh")
+(setq-default dired-listing-switches "-lh")
 (fset 'yes-or-no-p 'y-or-n-p)
 (setq confirm-nonexistent-file-or-buffer nil)
 (show-paren-mode t)
 (setq show-paren-delay 0.0)
-(setq visible-bell t)
+(setq visible-bell nil)
+(setq ring-bell-function t)
 (setq create-lockfiles nil)
 (setq mouse-yank-at-point t)
 (advice-add 'ediff-window-display-p :override #'ignore)
@@ -435,6 +436,7 @@
 (setq org-list-indent-offset 2)
 (setq org-ellipsis " ▼")
 (setq org-startup-indented t)
+(setq org-clock-sound t)
 (add-hook 'after-init-hook 'org-agenda-list)
 
 (setq org-todo-keywords
