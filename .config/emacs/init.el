@@ -181,6 +181,7 @@
 (projectile-mode +1)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 (define-key projectile-mode-map (kbd "C-c p s f") 'flymake-show-project-diagnostics)
+(setq projectile-indexing-method 'hybrid)
 (setq projectile-project-search-path '("/home/azmat/Programming/Projects"))
 
 ; for using C-g to quit normal mode
@@ -200,7 +201,7 @@
 (use-package embark-consult)
 
 (require 'bind-key)
-(bind-key "C-," #'embaek-act)
+(bind-key "C-," #'embark-act)
 
 (use-package surround
  :bind-keymap ("M-'" . surround-keymap))
@@ -354,23 +355,6 @@
        "w <left>"  '(winner-undo :which-key "Winner undo")
        "w <right>" '(winner-redo :which-key "Winner redo"))
 
-
-(use-package helpful
-  ;; :custom
-  ;; (counsel-describe-function-function #'helpful-callable)
-  ;; (counsel-describe-variable-function #'helpful-variable)
-  :bind
-  ([remap describe-function] . helpful-function)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-variable] . helpful-variable)
-  ([remap describe-key] . helpful-key))
-
-;; (use-package tree-sitter)
-;; (use-package tree-sitter-langs)
-;; (require 'tree-sitter)
-;; (require 'tree-sitter-langs)
-;; (global-tree-sitter-mode)
-;; (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
 
 (setq major-mode-remap-alist
       '((c++-mode . c++-ts-mode)
