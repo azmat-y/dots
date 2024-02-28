@@ -337,10 +337,13 @@
   "o c" '(org-capture :wk "org-capture")
   "o f" '(org-open-at-point :wk "org-open-at-point")
   "o a" '(org-agenda :wk "org-agenda")
-
+  "o t" '(org-timer-set-timer :wk "org-timer")
   "d  " '(:ignore t :wk "dap-mode")
   "d d" '(dap-debug :wk "dap-debug")
   "d l" '(dap-debug-last :wk "dap-debug-last")
+  "d s" '(dap-delete-session :wk "dap-delete-session")
+  "d a" '(dap-breakpoint-add :wk "dap-add-breakpoint")
+  "d A" '(dap-breakpoint-delete :wk "dap-breakpoint-add")
 )
 
 
@@ -516,6 +519,8 @@
 
 (defun multi-occur-in-this-mode ()
   "Show all lines matching REGEXP in buffers with this major-mode"
+  ;;; Becomes a little redundant when I use consult-rg and embark-export
+  ;;; the buffer
   (interactive)
   (multi-occur
    (get-buffer-matching-mode major-mode)
