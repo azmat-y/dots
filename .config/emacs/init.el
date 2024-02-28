@@ -113,6 +113,12 @@
   (completion-styles '(orderless basic))
   (completion-category-overrides '((file (styles basic partial-completion)))))
 
+(use-package wgrep
+  :ensure t
+  :bind (:map grep-mode-map
+	      ("e" . wgrep-change-to-wgrep-mode)
+	      ("C-c C-c" . wgrep-finish-edit)))
+
 (use-package vterm)
 (use-package magit)
 (use-package forge
