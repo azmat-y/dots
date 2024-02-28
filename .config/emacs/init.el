@@ -230,10 +230,16 @@
   :config
   (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-         ((c-ts-mode c++-ts-mode python-ts-mode). lsp-deferred)
+         ((c-ts-mode c++-ts-mode python-ts-mode java-ts-mode) . lsp-deferred)
          ;; if you want which-key integration
          (lsp-mode . lsp-enable-which-key-integration))
-  :commands lsp-deferred)
+  :commands lsp-deferred
+  :config
+  (add-hook 'java-mode-hook #'(lambda () (when (eq major-mode 'java-ts-mode) (lsp-deferred)))))
+
+(use-package lsp-java
+  :after lsp)
+
 
 ;; for emacs-lsp-booster
 (define-advice json-parse-buffer (:around (old-fn &rest args) lsp-booster-parse-bytecode)
@@ -366,10 +372,12 @@
   :custom
   (treesit-language-source-alist '((cpp "https://github.com/tree-sitter/tree-sitter-cpp")
 				   (python "https://github.com/tree-sitter/tree-sitter-python")
-				   (c "https://github.com/tree-sitter/tree-sitter-c")))
+				   (c "https://github.com/tree-sitter/tree-sitter-c")
+				   (java "https://github.com/tree-sitter/tree-sitter-java")))
   (major-mode-remap-alist '((c++-mode . c++-ts-mode)
 			    (python-mode . python-ts-mode)
-			    (c-mode . c-ts-mode)))
+			    (c-mode . c-ts-mode)
+			    (java-mode . java-ts-mode)))
   (treesit-font-lock-level 4))
 
 (use-package org-bullets
@@ -560,3 +568,22 @@
       (window-width . 0.5)))))
 (put 'downcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
+
+(defun open-project-files (project-directory)
+  "Open all files in the specified project directory in separate buffers."
+  (interactive "DProject directory: ")
+  (if (file-directory-p project-directory)
+      (let ((files (directory-files-recursively project-directory ".*\\.\\(el\\|py\\|java\\|cpp\\|h\\|txt\\)$")))
+        (dolist (file files)
+          (find-file file)))
+    (message "Invalid project directory")))
+(global-set-key (kbd "C-c i") #'open-project-files)
+
+(use-package clang-format
+  :init
+  (setq clang-format-style "llvm"))
+
+(use-package java-ts-mode
+  :ensure nil
+  :custom
+  (java-ts-mode-indent-offset 2))
