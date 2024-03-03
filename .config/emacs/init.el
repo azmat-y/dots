@@ -586,7 +586,7 @@
 
 (use-package clang-format
   :init
-  (setq clang-format-style "llvm"))
+  (setq clang-format-style "k&r"))
 
 (use-package java-ts-mode
   :ensure nil
