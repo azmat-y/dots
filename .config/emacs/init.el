@@ -365,9 +365,6 @@
        "w <right>" '(winner-redo :which-key "Winner redo"))
 
 
-(setq major-mode-remap-alist
-      '((c++-mode . c++-ts-mode)
-	(python-mode . python-ts-mode)))
 
 (require 'treesit)
 (use-package treesit
