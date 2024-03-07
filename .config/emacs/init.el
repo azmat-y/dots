@@ -58,7 +58,7 @@
 (unless package-archive-contents
  (package-refresh-contents t))
 
-;; Initialize use-package on non-Linux platforms
+;; initialize use-package on non-Linux platforms
 (unless (package-installed-p 'use-package)
    (package-install 'use-package))
 
@@ -225,21 +225,21 @@
   (setq lsp-headerline-breadcrumb-enable nil)
   (setq lsp-modeline-code-actions-segments '(count icon name))
   (setq lsp-signature-render-documentation nil)
-  (lsp-inlay-hints-mode 1)
   (setq lsp-keymap-prefix "C-c l")
-  :config
-  (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-         ((c-ts-mode c++-ts-mode python-ts-mode java-ts-mode) . lsp-deferred)
+         ((c-ts-mode
+	   c++-ts-mode
+	   python-ts-mode
+	   java-ts-mode
+	   js-ts-mode) . lsp-deferred)
          ;; if you want which-key integration
          (lsp-mode . lsp-enable-which-key-integration))
   :commands lsp-deferred
   :config
-  (add-hook 'java-mode-hook #'(lambda () (when (eq major-mode 'java-ts-mode) (lsp-deferred)))))
-
+  (add-hook 'java-mode-hook #'(lambda () (when (eq major-mode 'java-ts-mode) (lsp-deferred))))
+  )
 (use-package lsp-java
   :after lsp)
-
 
 ;; for emacs-lsp-booster
 (define-advice json-parse-buffer (:around (old-fn &rest args) lsp-booster-parse-bytecode)
@@ -283,7 +283,7 @@
         (:map lsp-mode-map
          ("<tab>" . company-indent-or-complete-common)))
   :init
-  (setq company-tooltip-align-annotations nil)
+  (setq company-tooltip-align-annotations t)
   (setq company-tooltip-minimum 4)
   (setq company-tooltip-flip-when-above t)
   :custom
@@ -376,11 +376,14 @@
   (treesit-language-source-alist '((cpp "https://github.com/tree-sitter/tree-sitter-cpp")
 				   (python "https://github.com/tree-sitter/tree-sitter-python")
 				   (c "https://github.com/tree-sitter/tree-sitter-c")
-				   (java "https://github.com/tree-sitter/tree-sitter-java")))
+				   (java "https://github.com/tree-sitter/tree-sitter-java")
+				   (javascript "https://github.com/tree-sitter/tree-sitter-javascript")))
   (major-mode-remap-alist '((c++-mode . c++-ts-mode)
 			    (python-mode . python-ts-mode)
 			    (c-mode . c-ts-mode)
-			    (java-mode . java-ts-mode)))
+			    (java-mode . java-ts-mode)
+			    (js-mode . js-ts-mode)
+			    (javascript-mode . js-ts-mode)))
   (treesit-font-lock-level 4))
 
 (use-package org-bullets
@@ -398,7 +401,7 @@
 
 (setq smerge-command-prefix "\C-cv")
 
-(global-hl-line-mode 1)
+(global-hl-line-mode 0)
 (setq gc-cons-threshold 100000000) ; allocates more 20MB for emacs than default 0.76MB so that GC doesn't run as often
 (setq sentence-end-double-space nil)
 (setq read-process-output-max (* 1024 1024)) ;; 1mb Increase the amount of data which Emacs reads from the process
