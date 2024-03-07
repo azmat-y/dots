@@ -592,3 +592,7 @@
   :ensure nil
   :custom
   (java-ts-mode-indent-offset 2))
+
+(unless (package-installed-p 'keycast)
+  (package-vc-install
+   "https://github.com/tarsius/keycast.git"))
