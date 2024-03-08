@@ -236,13 +236,16 @@
          (lsp-mode . lsp-enable-which-key-integration))
   :commands lsp-deferred
   :config
-  (add-hook 'java-mode-hook #'(lambda () (when (eq major-mode 'java-ts-mode) (lsp-deferred))))
   )
 (use-package lsp-java
   :after lsp)
 
+(use-package java-ts-mode
+  :ensure nil
+  :hook (java-ts-mode . lsp-deferred))
+
 ;; for emacs-lsp-booster
-(define-advice json-parse-buffer (:around (old-fn &rest args) lsp-booster-parse-bytecode)
+(defun lsp-booster--advice-json-parse (old-fn &rest args)
   "Try to parse bytecode instead of json."
   (or
    (when (equal (following-char) ?#)
@@ -250,8 +253,14 @@
        (when (byte-code-function-p bytecode)
          (funcall bytecode))))
    (apply old-fn args)))
+(advice-add (if (progn (require 'json)
+                       (fboundp 'json-parse-buffer))
+                'json-parse-buffer
+              'json-read)
+            :around
+            #'lsp-booster--advice-json-parse)
 
-(define-advice lsp-resolve-final-command (:around (old-fn cmd &optional test?) add-lsp-server-booster)
+(defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
   "Prepend emacs-lsp-booster command to lsp CMD."
   (let ((orig-result (funcall old-fn cmd test?)))
     (if (and (not test?)                             ;; for check lsp-server-present?
@@ -263,6 +272,7 @@
           (message "Using emacs-lsp-booster for %s!" orig-result)
           (cons "emacs-lsp-booster" orig-result))
       orig-result)))
+(advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
 
 (use-package cmake-mode
   :ensure t
@@ -596,3 +606,4 @@
 (unless (package-installed-p 'keycast)
   (package-vc-install
    "https://github.com/tarsius/keycast.git"))
+(keycast-header-line-mode)
