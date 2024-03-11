@@ -140,6 +140,7 @@
   (marginalia-mode))
 
 (use-package consult)
+(use-package consult-flycheck)
 (use-package imenu-list)
 
 (consult-theme 'modus-vivendi)
@@ -155,7 +156,7 @@
   "s"   '(:ignore t :wk "search")
   "s i" '(consult-imenu :wk "consult-imenu")
   "s r" '(consult-ripgrep :wk "consult-ripgrep")
-  "s f" '(consult-flymake :wk "consult-flymake")
+  "s f" '(consult-flycheck :wk "consult-flycheck")
   "t"   '(:ignore t :wk "toggles")
   "t i" '(imenu-list-smart-toggle :wk "imenu-list-toggle")
   "t r" '(toggle-truncate-lines :wk "toggle-truncate-lines")
@@ -204,7 +205,7 @@
 (bind-key "C-," #'embark-act)
 
 (use-package surround
- :bind-keymap ("M-'" . surround-keymap))
+ :bind-keymap ("M-n" . surround-keymap))
 
 (use-package evil-goggles
   :ensure t
@@ -607,3 +608,27 @@
   (package-vc-install
    "https://github.com/tarsius/keycast.git"))
 (keycast-header-line-mode)
+
+(use-package flycheck
+  :init
+  (global-flycheck-mode))
+
+(use-package popper
+  :ensure t ; or :straight t
+  :bind (("C-'"   . popper-toggle)
+         ("M-'"   . popper-cycle)
+         ("C-M-'" . popper-toggle-type))
+  :init
+  (setq popper-group-function #'popper-group-by-projectile)
+  (setq popper-reference-buffers
+        '("\\*Messages\\*"
+          "Output\\*$"
+          "\\*Async Shell Command\\*"
+          "^\\*vterm.*\\*$"  vterm-mode  ;vterm as a popup
+	  "\\*lsp-help\\*" lsp-help-mode
+          help-mode
+          compilation-mode))
+  (popper-mode +1)
+  (popper-echo-mode +1)
+  :config
+    (setq popper-display-control nil))   ; For echo area hints
