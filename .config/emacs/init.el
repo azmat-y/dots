@@ -444,7 +444,7 @@
 
 (nvmap :states '(normal insert visual emacs) :keymaps 'override :prefix "SPC" :global-prefix "M-SPC"
   "E  " '(embark-act :wk "embark-act")
-  "c  " '(:ignroe t :wk "code")
+  "c  " '(:ignore t :wk "code")
 ;  "c l" '(lsp-keymap-prefix :wk "lsp")
   "s l" '(consult-line :wk "consult line")
 
@@ -686,19 +686,26 @@
       (window . root)
       (window-height . 0.35))
 
+     ("\\*eldoc\\*"
+      display-buffer-in-side-window
+      (side . right)
+      (window-width . 60))
+
      ("\\*Help\\*"
-      display-buffer-in-direction
-      (direction . right)
-      (window . root)
-      (window-width . 0.5)))))
+      display-buffer-in-side-window
+      (window-width . 60)
+      (side . right)))))
+
 (put 'downcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
 
 (defun open-project-files (project-directory)
-  "Open all files in the specified project directory in separate buffers."
+  "Open all files in the specified PROJECT-DIRECTORY in separate buffers."
   (interactive "DProject directory: ")
   (if (file-directory-p project-directory)
-      (let ((files (directory-files-recursively project-directory ".*\\.\\(el\\|py\\|java\\|cpp\\|h\\|txt\\)$")))
+      (let ((files (directory-files-recursively
+		    project-directory
+		    ".*\\.\\(el\\|py\\|java\\|cpp\\|h\\|txt\\)$")))
         (dolist (file files)
           (find-file file)))
     (message "Invalid project directory")))
