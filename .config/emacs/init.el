@@ -224,7 +224,10 @@
   (setq lsp-enable-symbol-highlighting t)
   (setq lsp-lens-enable nil)
   (setq lsp-headerline-breadcrumb-enable nil)
-  (setq lsp-modeline-code-actions-segments '(count icon name))
+  (setq lsp-modeline-code-actions-segments '(count icon))
+  (setq lsp-signature-render-documentation nil)
+  (setq lsp-eldoc-render-all t)
+
   (setq lsp-signature-render-documentation nil)
   (setq lsp-keymap-prefix "C-c l")
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
@@ -238,6 +241,7 @@
   :commands lsp-deferred
   :config
   )
+(global-set-key (kbd "M-.") #'xref-find-definitions)
 (use-package lsp-java
   :after lsp)
 
@@ -455,6 +459,7 @@
 (setq org-startup-indented t)
 (setq org-clock-sound t)
 (add-hook 'after-init-hook 'org-agenda-list)
+(setq eldoc-echo-area-use-multiline-p nil)
 
 (setq org-todo-keywords
       '((sequence "TODO" "FEEDBACK" "VERIFY" "|" "DONE" "SCRAPED")))
