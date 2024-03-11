@@ -686,7 +686,7 @@
       (window . root)
       (window-height . 0.35))
 
-     ("\\*eldoc\\*"
+     ("\*eldoc\w*"
       display-buffer-in-side-window
       (side . right)
       (window-width . 60))
@@ -742,6 +742,7 @@
           "\\*Async Shell Command\\*"
           "^\\*vterm.*\\*$"  vterm-mode  ;vterm as a popup
 	  "\\*lsp-help\\*" lsp-help-mode
+	  "\*eldoc\w*"
           help-mode
           compilation-mode))
   (popper-mode +1)
