@@ -662,22 +662,22 @@
      ;; Yes there is a lot of repition here I could not get `(,(rx))
      ;; expression to work for me
      ("\\*vterm\\*"
-      display-buffer-in-direction
-      (direction . bottom)
+      display-buffer-in-side-window
+      (side . bottom)
       (window . root)
-      (window-height . 0.35))
+      (window-height . 0.45))
 
      ("\\*compilation\\*"
-      display-buffer-in-direction
-      (direction . bottom)
+      display-buffer-in-side-window
+      (side . bottom)
       (window . root)
-      (window-height . 0.35))
+      (window-height . 0.45))
 
      ("\\*lsp-help\\*"
-      display-buffer-in-direction
-      (direction . right)
+      display-buffer-in-side-window
+      (side . right)
       (window . root)
-      (window-width . 0.5))
+      (window-width . 60))
 
 
      ("\\*Occur\\*"
