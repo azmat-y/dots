@@ -567,6 +567,7 @@
 (setq org-clock-sound t)
 (add-hook 'after-init-hook 'org-agenda-list)
 (setq eldoc-echo-area-use-multiline-p nil)
+(setq isearch-lazy-count t)
 
 (setq org-todo-keywords
       '((sequence "TODO" "FEEDBACK" "VERIFY" "|" "DONE" "SCRAPED")))
