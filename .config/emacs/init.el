@@ -443,7 +443,10 @@
   (dap-gdb-lldb-setup))
 
 (nvmap :states '(normal insert visual emacs) :keymaps 'override :prefix "SPC" :global-prefix "M-SPC"
-  "E  " '(embark-act :wk "embark-act")
+  "E  " '(:ignore t :wk "workspace")
+  "E e" '(treemacs-edit-workspaces :wk "edit-workspaces")
+  "E n" '(treemacs-next-workspace :wk "treemacs-next-workspace")
+  "E p" '(treemacs-next-project :wk "treemacs-next-project")
   "c  " '(:ignore t :wk "code")
 ;  "c l" '(lsp-keymap-prefix :wk "lsp")
   "s l" '(consult-line :wk "consult line")
