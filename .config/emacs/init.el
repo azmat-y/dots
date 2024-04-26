@@ -575,20 +575,23 @@
 
 (setq org-capture-templates
       '(("t"              ; hotkey
-	 "TODO List item" ; name
+	 "TODO [Daily] List item" ; name
 	 entry            ; type
 	 ; heading type and title
-	 (file+headline org-default-notes-file "Tasks")
+	 (file+headline org-default-notes-file "Daily")
+	 "* TODO %?\n %i\n")
+	("i"              ; hotkey
+	   "TODO List item with refrence" ; name
+	   entry            ; type
+	   (file+headline org-default-notes-file "Tasks")
 	 "* TODO %?\n %i\n%a \n")
+
 	("j"
 	 "Journal Entry"
 	 entry
 	 (file+datetree "~/Org/journal.org")
-	 "* %?\nEntered on %u\n %i\n %a")
-;; ("j" "Journal" entry (file+datetree "~/org/journal.org")
-;;               "* %?\nEntered on %U\n  %i\n  %a")
-	)
-      )
+	 "* %?\nEntered on %u\n %i\n %a")))
+
 (setq org-agenda-custom-commands
       '(("c" "Custom Agenda"
          ((agenda "" nil)
