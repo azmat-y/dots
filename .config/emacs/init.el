@@ -1,111 +1,156 @@
-(setq custom-file (concat user-emacs-directory "custom.el"))
-(when (file-exists-p custom-file)
-  (load custom-file))
 
-(setq inhibit-startup-message t)
-(setq initial-scratch-message nil)
+;; elpaca setup
+(defvar elpaca-installer-version 0.7)
+(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                              :ref nil :depth 1
+                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                              :build (:not elpaca--activate-package)))
+(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+       (build (expand-file-name "elpaca/" elpaca-builds-directory))
+       (order (cdr elpaca-order))
+       (default-directory repo))
+  (add-to-list 'load-path (if (file-exists-p build) build repo))
+  (unless (file-exists-p repo)
+    (make-directory repo t)
+    (when (< emacs-major-version 28) (require 'subr-x))
+    (condition-case-unless-debug err
+        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                 ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                 ,@(when-let ((depth (plist-get order :depth)))
+                                                     (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                 ,(plist-get order :repo) ,repo))))
+                 ((zerop (call-process "git" nil buffer t "checkout"
+                                       (or (plist-get order :ref) "--"))))
+                 (emacs (concat invocation-directory invocation-name))
+                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
 
-(scroll-bar-mode -1)        ; Disable visible scrollbar
-(tool-bar-mode -1)          ; Disable the toolbar
-(tooltip-mode -1)           ; Disable tooltips
-(global-visual-line-mode 1)
-(set-fringe-mode 5)
+                 ((require 'elpaca))
+                 ((elpaca-generate-autoloads "elpaca" repo)))
+            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+          (error "%s" (with-current-buffer buffer (buffer-string))))
+      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+  (unless (require 'elpaca-autoloads nil t)
+    (require 'elpaca)
+    (elpaca-generate-autoloads "elpaca" repo)
+    (load "./elpaca-autoloads")))
+(add-hook 'after-init-hook #'elpaca-process-queues)
+(elpaca `(,@elpaca-order))
 
-(menu-bar-mode -1)            ; Disable the menu bar
-(electric-pair-mode)	      ; completes delimiters like ({["'"]})
-(electric-indent-mode 1)
+;; my functions efs, ..
+(defun efs/display-startup-time ()
+  (interactive)
+  (message "Emacs loaded in %s with %d garbage collections."
+           (format "%.2f seconds"
+                   (float-time
+                     (time-subtract after-init-time before-init-time)))
+           gcs-done))
 
-(dolist (mode '(term-mode-hook
-		vterm-mode-hook))
-  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+(defun my/activate-corfu-terminal ()
+  (unless (display-graphic-p)
+    (corfu-terminal-mode +1)))
 
-(setq warning-minimum-level :emergency)
-;JetBrainsMonoNerdFont
-(set-face-attribute 'default nil :font "LiterationMonoNerdFont" :height 120)
-(setq default-frame-alist '((font  . "LiterationMonoNerdFont")))
+;; Install use-package support
+(elpaca elpaca-use-package
+  ;; Enable :elpaca use-package keyword.
+  (elpaca-use-package-mode)
+  ;; Assume :elpaca t unless otherwise specified.
+  (setq elpaca-use-package-by-default t))
 
-(setq-default display-line-numbers-type 'relative)
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+;; Block until current queue processed.
+(elpaca-wait)
 
-;; package to automatically zooom the focused window
-
-(use-package zoom)
-(custom-set-variables
- '(zoom-size '(0.618 . 0.618)))
-(global-set-key (kbd "C-x +") 'zoom)
-(global-set-key (kbd "<f8>") 'zoom-mode)
-
-(use-package spacious-padding
-  :ensure t)
-
-(setq spacious-padding-widths
-      '( :internal-border-width 15
-         :header-line-width 4
-         :mode-line-width 3
-         :tab-width 4
-         :right-divider-width 20
-         :scroll-bar-width 8))
-(spacious-padding-mode -1)
-;; Initialize package source
-(require 'package)
-
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("org" . "https://orgmode.org/elpa/")
-                         ("elpa" . "https://elpa.gnu.org/packages/")))
-
-(package-initialize)
-
-(unless package-archive-contents
- (package-refresh-contents t))
-
-;; initialize use-package on non-Linux platforms
-(unless (package-installed-p 'use-package)
-   (package-install 'use-package))
-
-(require 'use-package)
-(setq use-package-always-ensure t)
-
-(use-package doom-themes)
-(use-package nerd-icons)
-
-(use-package doom-modeline
+(use-package emacs
+  :ensure nil
   :init
-  (setq doom-modeline-project-detection 'file-name)
-  (doom-modeline-mode 1))
+  (setq inhibit-startup-message t)
+  (setq initial-scratch-message nil)
+  (setq warning-minimum-level :emergency)
+  (setq gc-cons-threshold 100000000) ; allocates more 20MB for emacs than default 0.76MB so that GC doesn't run as often
+  (setq sentence-end-double-space nil)
+  (setq read-process-output-max (* 1024 1024)) ;; 1mb Increase the amount of data which Emacs reads from the process
+  (setq create-lockfiles nil)
+  (setq backup-directory-alist  '((".*" . "/home/azmat/.emacs_backups")))
+  (setq auth-sources '("~/.authinfo.gpg"))
+  (setq eldoc-echo-area-use-multiline-p nil)
+  (setq isearch-lazy-count t)
+  (setq-default dired-listing-switches "-lh")
+
+  (fset 'yes-or-no-p 'y-or-n-p)
+  (scroll-bar-mode -1)
+  (tool-bar-mode -1)          ; Disable the toolbar
+  (tooltip-mode -1)           ; Disable tooltips
+  (global-visual-line-mode 1)
+  (set-fringe-mode 5)
+  (menu-bar-mode -1)            ; Disable the menu bar
+  (electric-pair-mode)	      ; completes delimiters like ({["'"]})
+  (show-paren-mode)
+  ; (electric-indent-mode 1)
+  ; UbuntuMonoNerdFont
+  (set-face-attribute 'default nil :font "IosevkaTermNerdFontMono" :height 140)
+  (add-to-list 'default-frame-alist '(font . "IosevkaTermNerdFontMono-14"))
+  )
+
+(use-package undo-tree
+  :init
+  (global-undo-tree-mode))
+(elpaca-wait)
 
 (use-package evil
+  :hook (prog-mode . evil-mode)
+  :bind (:map evil-insert-state-map
+	      ("C-n" . nil)
+	      ("C-p" . nil))
+  
   :init      ;; tweak evil's configuration before loading it
   (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
   (setq evil-want-keybinding nil)
   (setq evil-vsplit-window-right t)
-  (setq evil-split-window-below t)
+  (setq evil-split-window-below nil)
   (setq evil-want-C-i-jump nil)
   (setq evil-want-C-u-scroll t)
-  (evil-mode))
+  (setq evil-undo-system 'undo-tree)
+
+  :config
+  ; for using C-g to quit normal mode
+  (define-key evil-insert-state-map  (kbd "C-g") #'evil-force-normal-state)
+  (define-key evil-replace-state-map (kbd "C-g") #'evil-force-normal-state)
+  (define-key evil-visual-state-map  (kbd "C-g") #'evil-force-normal-state)
+  (define-key evil-operator-state-map (kbd "C-g") #'evil-force-normal-state))
+(elpaca-wait)
 
 (use-package evil-collection
   :after evil
   :config
   (setq evil-collection-mode-list '(dashboard dired ibuffer))
   (evil-collection-init))
+(elpaca-wait)
 
 (use-package general
   :config
   (general-evil-setup t))
+(elpaca-wait)
 
 (use-package which-key
   :init
   (which-key-mode))
+(elpaca-wait)
 
 ;; Enable vertico
 (use-package vertico
   :init
   (vertico-mode))
+(elpaca-wait)
 
 ;; Persist history over Emacs restarts. Vertico sorts by history position.
 (use-package savehist
+  :ensure nil
   :init
   (savehist-mode))
+(elpaca-wait)
 
 
 (use-package orderless
@@ -114,15 +159,17 @@
   (completion-category-overrides '((file (styles basic partial-completion)))))
 
 (use-package wgrep
-  :ensure t
   :bind (:map grep-mode-map
 	      ("e" . wgrep-change-to-wgrep-mode)
 	      ("C-c C-c" . wgrep-finish-edit)))
+(elpaca-wait)
 
 (use-package vterm)
 (use-package magit)
-(use-package forge
-  :after magit)
+(use-package transient)
+
+(use-package forge :after magit)
+(elpaca-wait)
 ;; Enable rich annotations using the Marginalia package
 (use-package marginalia
   ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
@@ -130,28 +177,23 @@
   ;; `completion-list-mode-map'.
   :bind (:map minibuffer-local-map
          ("M-A" . marginalia-cycle))
-
   ;; The :init section is always executed.
   :init
-
   ;; Marginalia must be actived in the :init section of use-package such that
   ;; the mode gets enabled right away. Note that this forces loading the
   ;; package.
   (marginalia-mode))
+(elpaca-wait)
 
 (use-package consult)
 (use-package consult-flycheck)
 (use-package imenu-list)
 
-(consult-theme 'modus-vivendi)
-(global-set-key (kbd "M-s b") #'consult-buffer)
+(use-package ef-themes)
+(elpaca-wait)
+(consult-theme 'ef-elea-dark)
 
-;; recentf stuff
-(require 'recentf)
-(recentf-mode 1)
-(setq recentf-max-menu-items 25)
 
-(general-auto-unbind-keys)
 (nvmap :states '(normal insert visual emacs) :keymaps 'override :prefix "SPC" :global-prefix "M-SPC"
   "s"   '(:ignore t :wk "search")
   "s i" '(consult-imenu :wk "consult-imenu")
@@ -175,320 +217,108 @@
   "e b" '(eval-buffer :wk "eval-buffer")
   "g  " '(:ignore t :wk "magit")
   "g s" '(magit-status :wk "magit-status")
-  "g b" '(magit-blame :wk "magit-blame")
-  )
-
-(use-package projectile)
-(projectile-mode +1)
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-(define-key projectile-mode-map (kbd "C-c p s f") 'flymake-show-project-diagnostics)
-(setq projectile-indexing-method 'hybrid)
-(setq projectile-project-search-path '("/home/azmat/Programming/Projects"))
-
-; for using C-g to quit normal mode
-
-(define-key evil-insert-state-map  (kbd "C-g") #'evil-force-normal-state)
-(define-key evil-replace-state-map (kbd "C-g") #'evil-force-normal-state)
-(define-key evil-visual-state-map  (kbd "C-g") #'evil-force-normal-state)
-(define-key evil-operator-state-map (kbd "C-g") #'evil-force-normal-state)
-
-(define-key evil-insert-state-map (kbd "<return>") 'newline)
-(evil-set-initial-state 'comint-mode 'emacs)
-(evil-set-initial-state 'shell-mode 'emacs)
-(evil-set-initial-state 'vterm-mode 'emacs)
-(evil-set-initial-state 'Info-mode 'emacs)
-
-(use-package embark)
-(use-package embark-consult)
-
-(require 'bind-key)
-(bind-key "C-," #'embark-act)
-
-(use-package surround
- :bind-keymap ("M-n" . surround-keymap))
-
-(use-package evil-goggles
-  :ensure t
-  :config
-  (evil-goggles-mode))
-
-(use-package ace-window
-  :init
-  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
-(global-set-key (kbd "M-o") #'ace-window)
-(global-set-key (kbd "C-c h") #'dap-hydra)
-
-(use-package lsp-mode
-  :init
-  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-  (setq lsp-enable-symbol-highlighting t)
-  (setq lsp-lens-enable nil)
-  (setq lsp-headerline-breadcrumb-enable nil)
-  (setq lsp-modeline-code-actions-segments '(count icon))
-  (setq lsp-signature-render-documentation nil)
-  (setq lsp-eldoc-render-all t)
-
-  (setq lsp-signature-render-documentation nil)
-  (setq lsp-keymap-prefix "C-c l")
-  :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-         ((c-ts-mode
-	   c++-ts-mode
-	   python-ts-mode
-	   java-ts-mode
-	   js-ts-mode) . lsp-deferred)
-         ;; if you want which-key integration
-         (lsp-mode . lsp-enable-which-key-integration))
-  :commands lsp-deferred
-  :config
-  )
-(global-set-key (kbd "M-.") #'xref-find-definitions)
-(use-package lsp-java
-  :after lsp)
-
-(use-package java-ts-mode
-  :ensure nil
-  :hook (java-ts-mode . lsp-deferred))
-
-;; for emacs-lsp-booster
-(defun lsp-booster--advice-json-parse (old-fn &rest args)
-  "Try to parse bytecode instead of json."
-  (or
-   (when (equal (following-char) ?#)
-     (let ((bytecode (read (current-buffer))))
-       (when (byte-code-function-p bytecode)
-         (funcall bytecode))))
-   (apply old-fn args)))
-(advice-add (if (progn (require 'json)
-                       (fboundp 'json-parse-buffer))
-                'json-parse-buffer
-              'json-read)
-            :around
-            #'lsp-booster--advice-json-parse)
-
-(defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
-  "Prepend emacs-lsp-booster command to lsp CMD."
-  (let ((orig-result (funcall old-fn cmd test?)))
-    (if (and (not test?)                             ;; for check lsp-server-present?
-             (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
-             lsp-use-plists
-             (not (functionp 'json-rpc-connection))  ;; native json-rpc
-             (executable-find "emacs-lsp-booster"))
-        (progn
-          (message "Using emacs-lsp-booster for %s!" orig-result)
-          (cons "emacs-lsp-booster" orig-result))
-      orig-result)))
-(advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
-
-(use-package cmake-mode
-  :ensure t
-  :mode ("CMakeLists\\.txt\\'" "\\.cmake\\'"))
-
-(setq c-default-style "k&r")
-(setq-default c-basic-offset 2)
-
-(use-package lsp-pyright
-  :hook (python-ts-mode . (lambda() (require 'lsp-pyright)
-			 (lsp))))
-
-(use-package company
-  :after lsp-mode
-  :hook (prog-mode . company-mode)
-  :bind ((:map company-active-map
-         ("<tab>" . company-complete-selection))
-        (:map lsp-mode-map
-         ("<tab>" . company-indent-or-complete-common)))
-  :init
-  (setq company-tooltip-align-annotations t)
-  (setq company-tooltip-minimum 4)
-  (setq company-tooltip-flip-when-above t)
-  :custom
-  (company-icon-size 18)
-  (company-minimum-prefix-length 3)
-  (company-idle-delay 0.0)
-  (company-text-face-extra-attributes
-	'(:weight bold :slant italic))
-  (company-transformers '(delete-consecutive-dups
-                          company-sort-by-occurrence))
-
-  (company-tooltip-offset-display 'lines))
-(global-company-mode)
-
-(use-package lsp-treemacs)
-
-(use-package treemacs
-  :ensure t
-  :defer t
-  :init
-  (with-eval-after-load 'winum
-    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
-  :config
-  (progn
-    (setq treemacs-collapse-dirs                   (if treemacs-python-executable 3 0)
-          treemacs-deferred-git-apply-delay        0.5
-          treemacs-directory-name-transformer      #'identity
-          treemacs-display-in-side-window          t
-          treemacs-eldoc-display                   'simple
-          treemacs-file-event-delay                2000
-          treemacs-file-extension-regex            treemacs-last-period-regex-value
-          treemacs-file-follow-delay               0.2
-          treemacs-file-name-transformer           #'identity
-          treemacs-follow-after-init               t
-          treemacs-expand-after-init               t
-          treemacs-find-workspace-method           'find-for-file-or-pick-first
-          treemacs-git-command-pipe                ""
-          treemacs-goto-tag-strategy               'refetch-index
-          treemacs-header-scroll-indicators        '(nil . "^^^^^^")
-          treemacs-hide-dot-git-directory          t
-          treemacs-indentation                     2
-          treemacs-indentation-string              " "
-          treemacs-is-never-other-window           nil
-          treemacs-max-git-entries                 5000
-          treemacs-missing-project-action          'ask
-          treemacs-move-forward-on-expand          nil
-          treemacs-no-png-images                   nil
-          treemacs-no-delete-other-windows         t
-          treemacs-project-follow-cleanup          nil
-          treemacs-persist-file                    (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-          treemacs-position                        'left
-          treemacs-read-string-input               'from-child-frame
-          treemacs-recenter-distance               0.1
-          treemacs-recenter-after-file-follow      nil
-          treemacs-recenter-after-tag-follow       nil
-          treemacs-recenter-after-project-jump     'always
-          treemacs-recenter-after-project-expand   'on-distance
-          treemacs-litter-directories              '("/node_modules" "/.venv" "/.cask")
-          treemacs-project-follow-into-home        nil
-          treemacs-show-cursor                     nil
-          treemacs-show-hidden-files               t
-          treemacs-silent-filewatch                nil
-          treemacs-silent-refresh                  nil
-          treemacs-sorting                         'alphabetic-asc
-          treemacs-select-when-already-in-treemacs 'move-back
-          treemacs-space-between-root-nodes        t
-          treemacs-tag-follow-cleanup              t
-          treemacs-tag-follow-delay                1.5
-          treemacs-text-scale                      nil
-          treemacs-user-mode-line-format           nil
-          treemacs-user-header-line-format         nil
-          treemacs-wide-toggle-width               70
-          treemacs-width                           35
-          treemacs-width-increment                 1
-          treemacs-width-is-initially-locked       t
-          treemacs-workspace-switch-cleanup        nil)
-
-    ;; The default width and height of the icons is 22 pixels. If you are
-    ;; using a Hi-DPI display, uncomment this to double the icon size.
-    ;;(treemacs-resize-icons 44)
-
-    (treemacs-follow-mode t)
-    (treemacs-filewatch-mode t)
-    (treemacs-fringe-indicator-mode 'always)
-    (when treemacs-python-executable
-      (treemacs-git-commit-diff-mode t))
-
-    (pcase (cons (not (null (executable-find "git")))
-                 (not (null treemacs-python-executable)))
-      (`(t . t)
-       (treemacs-git-mode 'deferred))
-      (`(t . _)
-       (treemacs-git-mode 'simple)))
-
-    (treemacs-hide-gitignored-files-mode nil))
-  :bind
-  (:map global-map
-        ("M-0"       . treemacs-select-window)
-        ("C-x t 1"   . treemacs-delete-other-windows)
-        ("C-x t t"   . treemacs)
-        ("C-x t d"   . treemacs-select-directory)
-        ("C-x t B"   . treemacs-bookmark)
-        ("C-x t C-t" . treemacs-find-file)
-        ("C-x t M-t" . treemacs-find-tag)))
-
-(use-package treemacs-evil
-  :after (treemacs evil)
-  :ensure t)
-
-(use-package treemacs-projectile
-  :after (treemacs projectile)
-  :ensure t)
-
-(use-package treemacs-icons-dired
-  :hook (dired-mode . treemacs-icons-dired-enable-once)
-  :ensure t)
-
-(use-package treemacs-magit
-  :after (treemacs magit)
-  :ensure t)
-(use-package yasnippet)
-(use-package yasnippet-snippets)
-(yas-global-mode 1)
-
-(use-package consult-lsp)
-(define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)
-
-(use-package rainbow-delimiters)
-(add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
-
-(use-package evil-anzu)
-(with-eval-after-load 'evil
-  (require 'evil-anzu)
- ; (setq anzu-mode 1)
-  )
-(add-hook 'prog-mode-hook (lambda () (anzu-mode 1)))
-
-(use-package dap-mode
-  :init
-  (setq dap-auto-configure-features '(sessions locals tooltip))
-  (require 'dap-gdb-lldb)
-  (dap-gdb-lldb-setup))
+  "g b" '(magit-blame :wk "magit-blame"))
 
 (nvmap :states '(normal insert visual emacs) :keymaps 'override :prefix "SPC" :global-prefix "M-SPC"
-  "E  " '(:ignore t :wk "workspace")
-  "E e" '(treemacs-edit-workspaces :wk "edit-workspaces")
-  "E n" '(treemacs-next-workspace :wk "treemacs-next-workspace")
-  "E p" '(treemacs-next-project :wk "treemacs-next-project")
-  "E s" '(treemacs-switch-workspace :wk "treemacs-swtich-workspace")
-  "c  " '(:ignore t :wk "code")
-;  "c l" '(lsp-keymap-prefix :wk "lsp")
   "s l" '(consult-line :wk "consult line")
-
   "l "  '(:ignore t :wk "lsp")
-  "l e" '(lsp-treemacs-errors-list :wk "errors")
-  "l s" '(consult-lsp-file-symbols :wk "lsp-file-symbols")
+  ;; "l e" '(lsp-treemacs-errors-list :wk "errors")
+  ;; "l s" '(consult-lsp-file-symbols :wk "lsp-file-symbols")
   "c c" '(compile :wk "compile")
   "o  " '(:ignore t :wk "org")
   "o c" '(org-capture :wk "org-capture")
   "o f" '(org-open-at-point :wk "org-open-at-point")
   "o a" '(org-agenda :wk "org-agenda")
-  "o t" '(org-timer-set-timer :wk "org-timer")
-  "d  " '(:ignore t :wk "dap-mode")
-  "d d" '(dap-debug :wk "dap-debug")
-  "d l" '(dap-debug-last :wk "dap-debug-last")
-  "d s" '(dap-delete-session :wk "dap-delete-session")
-  "d a" '(dap-breakpoint-add :wk "dap-add-breakpoint")
-  "d A" '(dap-breakpoint-delete :wk "dap-breakpoint-add")
-)
+  "o t" '(org-timer-set-timer :wk "org-timer"))
+
+(use-package projectile
+  :init
+  (setq projectile-indexing-method 'hybrid)
+  (setq projectile-project-search-path '("/home/azmat/Programming/Projects"))
+  :general-config
+  (:keymap 'projectile-mode-map
+	   :prefix "C-c"
+	   "p" 'projectile-command-map))
+(elpaca-wait)
+
+(use-package embark
+  :init
+  (require 'bind-key)
+  (bind-key "C-," #'embark-act))
+(elpaca-wait)
+
+(use-package  embark-consult)
+(elpaca-wait)
+
+(use-package surround
+  :bind-keymap ("M-n" . surround-keymap))
+(elpaca-wait)
+
+(use-package evil-goggles
+  :config
+  (evil-goggles-mode))
+(elpaca-wait)
+
+(use-package ace-window
+  :init
+  (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+  (global-set-key (kbd "M-o") #'ace-window))
+(elpaca-wait)
+
+(use-package mood-line
+  :config
+  (mood-line-mode))
+(elpaca-wait)
+
+(use-package corfu
+  ;; Optional customizations
+  :custom
+  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+  (corfu-auto t)                 ;; Enable auto completion
+  (corfu-separator ?\s)          ;; Orderless field separator
+  (corfu-quit-at-boundary 'separator)   ;; Never quit at completion boundary
+  (corfu-quit-no-match t)      ;; Never quit, even if there is no match
+  (corfu-preview-current nil)    ;; Disable current candidate preview
+  (corfu-preselect 'first)      ;; Preselect the prompt
+  (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+  (corfu-scroll-margin 2)        ;; Use scroll margin
+  (corfu-auto-prefix 2)
+  (corfu-auto-delay 0)
+  :bind (:map corfu-map
+	      ("M-RET" . corfu-quit)
+	      ("TAB" . corfu-insert)
+	      ("RET" . corfu-insert)
+	      ("C-n" . corfu-next)
+	      ("C-p" . corfu-previous))
+  :init
+  (global-corfu-mode))
+
+(use-package corfu-terminal)
+
+(use-package kind-icon
+  :ensure t
+  :after corfu
+  ;:custom
+  ; (kind-icon-blend-background t)
+  ; (kind-icon-default-face 'corfu-default) ; only needed with blend-background
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
+(elpaca-wait)
+
+;; enable corfu in minibuffer
+(defun corfu-enable-always-in-minibuffer ()
+  "Enable Corfu in the minibuffer if Vertico/Mct are not active."
+  (unless (or (bound-and-true-p mct--active)
+              (bound-and-true-p vertico--input)
+              (eq (current-local-map) read-passwd-map))
+    ;; (setq-local corfu-auto nil) ;; Enable/disable auto completion
+    (setq-local corfu-echo-delay nil ;; Disable automatic echo and popup
+                corfu-popupinfo-delay nil)
+    (corfu-mode 1)))
+(add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
 
 
-(winner-mode 1)
-(nvmap :states '(normal insert visual emacs) :keymaps 'override :prefix "SPC" :global-prefix "M-SPC"
-       ;; Window SplitS
-       "w c"   '(evil-window-delete :which-key "Close window")
-       "w n"   '(evil-window-new :which-key "New window")
-       "w s"   '(evil-window-split :which-key "Horizontal split window")
-       "w v"   '(evil-window-vsplit :which-key "Vertical split window")
-       ;; Window MotionS
-       "w h"   '(evil-window-left :which-key "Window left")
-       "w j"   '(evil-window-down :which-key "Window down")
-       "w k"   '(evil-window-up :which-key "Window up")
-       "w l"   '(evil-window-right :which-key "Window right")
-       "w w"   '(evil-window-next :which-key "Goto next window")
-       ;; winner mode
-       "w <left>"  '(winner-undo :which-key "Winner undo")
-       "w <right>" '(winner-redo :which-key "Winner redo"))
-
-
-
+;; setting up tree-sitter
 (require 'treesit)
 (use-package treesit
   :ensure nil
@@ -506,265 +336,66 @@
 			    (javascript-mode . js-ts-mode)))
   (treesit-font-lock-level 4))
 
-(use-package org-bullets
-  :after org
-  :hook (org-mode . org-bullets-mode)
-  :custom
-  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+(use-package yasnippet-snippets)
 
-(use-package pdf-tools
-  :config
-  (add-hook 'pdf-view-mode-hook (lambda () (display-line-numbers-mode 0))))
-
-(use-package command-log-mode
-  :commands command-log-mode)
-
-(setq smerge-command-prefix "\C-cv")
-
-(global-hl-line-mode 0)
-(setq gc-cons-threshold 100000000) ; allocates more 20MB for emacs than default 0.76MB so that GC doesn't run as often
-(setq sentence-end-double-space nil)
-(setq read-process-output-max (* 1024 1024)) ;; 1mb Increase the amount of data which Emacs reads from the process
-(setq lsp-use-plists t)
-(setq-default dired-listing-switches "-lh")
-(fset 'yes-or-no-p 'y-or-n-p)
-(setq confirm-nonexistent-file-or-buffer nil)
-(show-paren-mode t)
-(setq show-paren-delay 0.0)
-(setq visible-bell nil)
-(setq ring-bell-function t)
-(setq create-lockfiles nil)
-(setq mouse-yank-at-point t)
-(advice-add 'ediff-window-display-p :override #'ignore)
-(add-hook 'before-save-hook 'delete-trailing-whitespace) ;remove trailing whitespace on save
-(setq backup-directory-alist            '((".*" . "/home/azmat/.emacs_backups")));; (setq tab-always-indent 'complete)
-;; (add-to-list 'completion-styles 'initials t)
-(defun my/disable-scroll-bars (frame)
-  (modify-frame-parameters frame
-                           '((vertical-scroll-bars . nil)
-                             (horizontal-scroll-bars . nil))))
-(add-hook 'after-make-frame-functions 'my/disable-scroll-bars)
-
-(add-hook 'gdb-mode-hook (lambda () (gdb-many-windows)))
-
-(setq org-src-fontify-natively t
-    org-src-tab-acts-natively t
-    org-confirm-babel-evaluate nil
-    org-edit-src-content-indentation 0)
-
-(setq org-agenda-span 'week)
-(setq org-directory "~/Org")
-(setq org-hide-leading-stars t)
-(setq org-hide-emphasis-markers nil)
-(setq org-log-done 'time)
-(setq org-export-coding-system 'utf-8)
-(setq org-return-follows-link  t)
-(global-set-key (kbd "C-c o") 'org-open-at-point)
-(global-set-key (kbd "C-c m") 'set-mark-command)
-(setq org-default-notes-file (concat org-directory "/notes.org"))
-(setq org-list-indent-offset 2)
-(setq org-ellipsis " ▼")
-(setq org-startup-indented t)
-(setq org-clock-sound t)
-(add-hook 'after-init-hook 'org-agenda-list)
-(setq eldoc-echo-area-use-multiline-p nil)
-(setq isearch-lazy-count t)
-
-(setq org-todo-keywords
-      '((sequence "TODO" "FEEDBACK" "VERIFY" "|" "DONE" "SCRAPED")))
-
-(setq org-capture-templates
-      '(("t"              ; hotkey
-	 "TODO [Daily] List item" ; name
-	 entry            ; type
-	 ; heading type and title
-	 (file+headline org-default-notes-file "Daily")
-	 "* TODO %?\n %i\n")
-	("i"              ; hotkey
-	   "TODO List item with refrence" ; name
-	   entry            ; type
-	   (file+headline org-default-notes-file "Tasks")
-	 "* TODO %?\n %i\n%a \n")
-
-	("j"
-	 "Journal Entry"
-	 entry
-	 (file+datetree "~/Org/journal.org")
-	 "* %?\nEntered on %u\n %i\n %a")))
-
-(setq org-agenda-custom-commands
-      '(("c" "Custom Agenda"
-         ((agenda "" nil)
-          (alltodo ""
-                   ((org-agenda-skip-function
-                     '(or
-                       (org-agenda-skip-entry-if 'scheduled 'deadline)
-                       (org-agenda-skip-entry-if 'todo '("SCHEDULED" "DEADLINE")))))
-                   (org-agenda-overriding-header "TODO items without scheduled or deadline"))))))
-(put 'upcase-region 'disabled nil)
-
-(setq org-confirm-babel-evaluate nil)
-
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((emacs-lisp . t)
-   (python . t)))
-
-(evil-set-initial-state 'compilation-mode 'emacs)
-(use-package compile
-  :ensure nil
-  :defer t
-  :hook ((compilation-filter . ansi-color-compilation-filter))
-  :bind (("C-x C-m" . recompile))
-  :config
-  (setopt compilation-scroll-output t)
-  (setopt compilation-ask-about-save nil)
-  (require 'ansi-color))
-
-(use-package command-log-mode)
-(setq auth-sources '("~/.authinfo.gpg"))
-
-;; So that swithhing to buffer also causes display action rules
-(setq switch-to-buffer-obey-display-actions t)
-(global-set-key [remap dabbrev-expand] 'hippie-expand)
-(global-set-key (kbd "C-x C-b") #'ibuffer)
-
-;; make tooltip use echo area
-(tooltip-mode -1)
-(setq tooltip-use-echo-area t)
-
-(eval-when-compile
-  (require 'cl))
-
-(defun get-buffer-matching-mode (mode)
-  "Return a list of buffers where their major mode is equal to MODE"
-  (let ((buffer-mode-matches '()))
-  (dolist (buf (buffer-list))
-    (with-current-buffer buf
-      (when (eq mode major-mode)
-	(push buf buffer-mode-matches))))
-  buffer-mode-matches))
-
-(defun multi-occur-in-this-mode ()
-  "Show all lines matching REGEXP in buffers with this major-mode"
-  ;;; Becomes a little redundant when I use consult-rg and embark-export
-  ;;; the buffer
-  (interactive)
-  (multi-occur
-   (get-buffer-matching-mode major-mode)
-   (car (occur-read-primary-args))))
-(global-set-key (kbd "M-s M-o") #'multi-occur-in-this-mode)
-
-(use-package window
-  :ensure nil
-  :custom
-  ; left,  top, right, bottom
-  (window-sides-slots '(1 0 1 1))
-  (display-buffer-alist
-   '(
-     (,(rx (| "*xref*"
-              "*grep*"
-              "*Occur*"))
-      display-buffer-reuse-window
-      (inhibit-same-window . nil))
-     ;; Yes there is a lot of repition here I could not get `(,(rx))
-     ;; expression to work for me
-     ("\\*vterm\\*"
-      display-buffer-in-side-window
-      (side . bottom)
-      (window . root)
-      (window-height . 0.45))
-
-     ("\\*compilation\\*"
-      display-buffer-in-side-window
-      (side . bottom)
-      (window . root)
-      (window-height . 0.45))
-
-     ("\\*lsp-help\\*"
-      display-buffer-in-side-window
-      (side . right)
-      (window . root)
-      (window-width . 60))
-
-
-     ("\\*Occur\\*"
-      display-buffer-in-direction
-      (direction . bottom)
-      (window . root)
-      (window-height . 0.35))
-
-     ("\*eldoc\w*"
-      display-buffer-in-side-window
-      (side . right)
-      (window-width . 60))
-
-     ("\\*Help\\*"
-      display-buffer-in-side-window
-      (window-width . 60)
-      (side . right)))))
-
-(put 'downcase-region 'disabled nil)
-(put 'narrow-to-region 'disabled nil)
-
-(defun open-project-files (project-directory)
-  "Open all files in the specified PROJECT-DIRECTORY in separate buffers."
-  (interactive "DProject directory: ")
-  (if (file-directory-p project-directory)
-      (let ((files (directory-files-recursively
-		    project-directory
-		    ".*\\.\\(el\\|py\\|java\\|cpp\\|h\\|txt\\)$")))
-        (dolist (file files)
-          (find-file file)))
-    (message "Invalid project directory")))
-(global-set-key (kbd "C-c i") #'open-project-files)
-
-(use-package clang-format
+(use-package yasnippet
   :init
-  (setq clang-format-style "k&r"))
-
-(use-package java-ts-mode
-  :ensure nil
-  :custom
-  (java-ts-mode-indent-offset 2))
-
-(unless (package-installed-p 'keycast)
-  (package-vc-install
-   "https://github.com/tarsius/keycast.git"))
-(keycast-header-line-mode)
+  (yas-global-mode 1))
 
 (use-package flycheck
-  :init
-  (global-flycheck-mode))
+  :ensure nil
+  :hook (prog-mode . flycheck-mode))
 
-(use-package popper
-  :ensure t ; or :straight t
-  :bind (("C-'"   . popper-toggle)
-         ("M-'"   . popper-cycle)
-         ("C-M-'" . popper-toggle-type))
+(use-package hl-todo
   :init
-  (setq popper-group-function #'popper-group-by-projectile)
-  (setq popper-reference-buffers
-        '("\\*Messages\\*"
-          "Output\\*$"
-          "\\*Async Shell Command\\*"
-          "^\\*vterm.*\\*$"  vterm-mode  ;vterm as a popup
-	  "\\*lsp-help\\*" lsp-help-mode
-	  "\*eldoc\w*"
-          help-mode
-          compilation-mode))
-  (popper-mode +1)
-  (popper-echo-mode +1)
+  (setq hl-todo-keyword-faces
+	'(("TODO" . "#FF0000")))
+  (global-hl-todo-mode))
+(elpaca-wait)
+
+(use-package eglot
+  :ensure nil
+  :general-config
+  (:keymaps 'eglot-mode-map :prefix "C-c l"
+	    "r" 'eglot-rename
+	    "a" 'eglot-code-actions
+	    "d" 'eglot-find-declaration
+	    "h" 'eldoc-doc-buffer
+	    "s" 'consult-eglot-symbols
+	    "f" 'eglot-format-buffer)
+  :hook ((c-ts-mode
+	  c++-ts-mode
+	  python-ts-mode
+	  java-ts-mode)  . eglot-ensure)
+  ;; :custom
+  ;; (eglot-ignored-server)
+  :init
+  ;; Option 1: Specify explicitly to use Orderless for Eglot
+  (setq completion-category-overrides '((eglot (styles orderless))
+					(eglot-capf (styles orderless)))))
+(elpaca-wait)
+
+;; java setup https://andreyor.st/posts/2023-09-09-migrating-from-lsp-mode-to-eglot/
+(use-package jarchive
+  :after eglot
   :config
-    (setq popper-display-control nil))   ; For echo area hints
+  (jarchive-setup))
+(elpaca-wait)
 
+(use-package consult-eglot)
+
+;; jsonrpc dependency for dape
+(use-package jsonrpc)
+(elpaca-wait)
+
+;; debugger setup
 (use-package dape
   :preface
   ;; By default dape shares the same keybinding prefix as `gud'
   ;; If you do not want to use any prefix, set it to nil.
-  ;; (setq dape-key-prefix "\C-x\C-a")
+  (setq dape-key-prefix "\C-x\C-a")
 
-  :hook
+  ;; :hook
   ;; Save breakpoints on quit
   ;; ((kill-emacs . dape-breakpoint-save)
   ;; Load breakpoints on startup
@@ -797,3 +428,61 @@
 
   ;; Projectile users
   (setq dape-cwd-fn 'projectile-project-root))
+(elpaca-wait)
+
+(use-package recentf
+  :ensure nil
+  :config
+  (recentf-mode))
+
+(use-package org-superstar
+  :config
+  :hook (org-mode . org-superstar-mode))
+(elpaca-wait)
+
+(use-package org-mode
+  :ensure nil
+  :init
+  (setq org-src-fontify-natively t)
+  (setq org-src-tab-acts-natively t)
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-edit-src-content-indentation 0)
+  (setq org-agenda-span 'week)
+  (setq org-directory "~/Org")
+  (setq org-hide-leading-stars t)
+  (setq org-hide-emphasis-markers nil)
+  (setq org-log-done 'time)
+  (setq org-export-coding-system 'utf-8)
+  (setq org-return-follows-link  t)
+  (setq org-default-notes-file (concat org-directory "/notes.org"))
+  (setq org-list-indent-offset 2)
+  (setq org-ellipsis " ▼")
+  (setq org-startup-indented t)
+  (setq org-clock-sound t)
+  (setq org-todo-keywords
+	'((sequence "TODO" "FEEDBACK" "VERIFY" "|" "DONE" "SCRAPED")))
+
+  (setq org-capture-templates
+      '(("t"              ; hotkey
+	 "TODO [Daily] List item" ; name
+	 entry            ; type
+	 ; heading type and title
+	 (file+headline org-default-notes-file "Daily")
+	 "* TODO %?\n %i\n")
+	("i"              ; hotkey
+	   "TODO List item with refrence" ; name
+	   entry            ; type
+	   (file+headline org-default-notes-file "Tasks")
+	 "* TODO %?\n %i\n%a \n")
+
+	("j"
+	 "Journal Entry"
+	 entry
+	 (file+datetree "~/Org/journal.org")
+	 "* %?\nEntered on %u\n %i\n %a"))))
+
+;; keep customize edits separate
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(add-hook 'elpaca-after-init-hook (lambda () (load custom-file)))
+(add-hook 'emacs-startup-hook #'efs/display-startup-time)
+(add-hook 'emacs-startup-hook #'my/activate-corfu-terminal)
