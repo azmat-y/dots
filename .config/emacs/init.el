@@ -95,8 +95,9 @@
   )
 
 (use-package undo-tree
-  :init
-  (global-undo-tree-mode))
+  :config
+  (global-undo-tree-mode)
+  (setq undo-tree-auto-save-history t))
 (elpaca-wait)
 
 (use-package evil
