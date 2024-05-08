@@ -480,7 +480,7 @@
 	 "Journal Entry"
 	 entry
 	 (file+datetree "~/Org/journal.org")
-	 "* %?\nEntered on %u\n %i\n %a"))))
+	 "* Entered on %u\n %i%?"))))
 
 ;; keep customize edits separate
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
