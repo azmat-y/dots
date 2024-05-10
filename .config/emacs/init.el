@@ -482,6 +482,21 @@
 	 (file+datetree "~/Org/journal.org")
 	 "* Entered on %u\n %i%?"))))
 
+;; dashboard
+;; use-package with Elpaca:
+(use-package dashboard
+  :init
+  (setq dashboard-startup-banner 'logo
+	dashboard-week-agenda t
+	dashboard-items '((agenda . 5)
+			  (recents . 3)
+			  (projects . 3)))
+  :config
+  (add-hook 'elpaca-after-init-hook #'dashboard-insert-startupify-lists)
+  (add-hook 'elpaca-after-init-hook #'dashboard-initialize)
+  (dashboard-setup-startup-hook))
+(elpaca-wait)
+
 ;; keep customize edits separate
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (add-hook 'elpaca-after-init-hook (lambda () (load custom-file)))
