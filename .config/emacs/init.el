@@ -497,6 +497,12 @@
   (dashboard-setup-startup-hook))
 (elpaca-wait)
 
+;; delete trailing whitespace
+(use-package ws-butler
+  :init
+  (ws-butler-global-mode))
+(elpaca-wait)
+
 ;; keep customize edits separate
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (add-hook 'elpaca-after-init-hook (lambda () (load custom-file)))
