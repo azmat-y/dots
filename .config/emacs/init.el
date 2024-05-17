@@ -92,6 +92,7 @@
   ; UbuntuMonoNerdFont
   (set-face-attribute 'default nil :font "IosevkaTermNerdFontMono" :height 140)
   (add-to-list 'default-frame-alist '(font . "IosevkaTermNerdFontMono-14"))
+  (global-set-key (kbd "M-[") 'universal-argument)
   )
 
 (use-package undo-tree
@@ -489,6 +490,7 @@
   (setq dashboard-startup-banner 'logo
 	dashboard-week-agenda t
 	dashboard-items '((agenda . 5)
+			  (bookmarks . 3)
 			  (recents . 3)
 			  (projects . 3)))
   :config
