@@ -314,6 +314,12 @@
     (corfu-mode 1)))
 (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1)
 
+(use-package doom-modeline
+  :init
+  (setq doom-modeline-support-imenu t
+	doom-modeline-buffer-file-name-style 'file-name)
+  :hook (after-init . doom-modeline-mode))
+(elpaca-wait)
 
 ;; setting up tree-sitter
 (require 'treesit)
