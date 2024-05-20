@@ -267,11 +267,6 @@
   (global-set-key (kbd "M-o") #'ace-window))
 (elpaca-wait)
 
-(use-package mood-line
-  :config
-  (mood-line-mode))
-(elpaca-wait)
-
 (use-package corfu
   ;; Optional customizations
   :custom
