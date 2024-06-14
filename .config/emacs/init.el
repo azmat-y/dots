@@ -65,6 +65,7 @@
 
 (use-package emacs
   :ensure nil
+  :hook (prog-mode . display-line-numbers-mode)
   :init
   (setq inhibit-startup-message t)
   (setq initial-scratch-message nil)
