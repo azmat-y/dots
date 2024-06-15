@@ -446,6 +446,7 @@
 
 (use-package org-mode
   :ensure nil
+  :hook (org-mode . ispell-minor-mode)
   :init
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)
@@ -512,3 +513,4 @@
 (add-hook 'elpaca-after-init-hook (lambda () (load custom-file)))
 (add-hook 'emacs-startup-hook #'efs/display-startup-time)
 (add-hook 'emacs-startup-hook #'my/activate-corfu-terminal)
+(put 'upcase-region 'disabled nil)
