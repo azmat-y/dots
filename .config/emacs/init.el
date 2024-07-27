@@ -78,6 +78,7 @@
   (setq auth-sources '("~/.authinfo.gpg"))
   (setq eldoc-echo-area-use-multiline-p nil)
   (setq isearch-lazy-count t)
+  (setq make-backup-files nil)
   (setq-default dired-listing-switches "-lh")
 
   (fset 'yes-or-no-p 'y-or-n-p)
@@ -122,8 +123,7 @@
   (define-key evil-insert-state-map  (kbd "C-g") #'evil-force-normal-state)
   (define-key evil-replace-state-map (kbd "C-g") #'evil-force-normal-state)
   (define-key evil-visual-state-map  (kbd "C-g") #'evil-force-normal-state)
-  (define-key evil-operator-state-map (kbd "C-g") #'evil-force-normal-state)
-  (evil-mode))
+  (define-key evil-operator-state-map (kbd "C-g") #'evil-force-normal-state))
 (elpaca-wait)
 
 (use-package evil-collection
@@ -328,12 +328,12 @@
 (use-package treesit
   :ensure nil
   :custom
-  (treesit-language-source-alist '((cpp "https://github.com/tree-sitter/tree-sitter-cpp")
+  (treesit-language-source-alist '(;;(cpp "https://github.com/tree-sitter/tree-sitter-cpp") master branch not working for some reason
+				   (cpp . ("https://github.com/tree-sitter/tree-sitter-cpp" "v0.22.0"))
 				   (python "https://github.com/tree-sitter/tree-sitter-python")
 				   (c "https://github.com/tree-sitter/tree-sitter-c")
 				   (java "https://github.com/tree-sitter/tree-sitter-java")
-				   (javascript "https://github.com/tree-sitter/tree-sitter-javascript")
-				   (go "https://github.com/tree-sitter/tree-sitter-go")))
+				   (javascript "https://github.com/tree-sitter/tree-sitter-javascript")))
   (major-mode-remap-alist '((c++-mode . c++-ts-mode)
 			    (python-mode . python-ts-mode)
 			    (c-mode . c-ts-mode)
