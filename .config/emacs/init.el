@@ -122,7 +122,8 @@
   (define-key evil-insert-state-map  (kbd "C-g") #'evil-force-normal-state)
   (define-key evil-replace-state-map (kbd "C-g") #'evil-force-normal-state)
   (define-key evil-visual-state-map  (kbd "C-g") #'evil-force-normal-state)
-  (define-key evil-operator-state-map (kbd "C-g") #'evil-force-normal-state))
+  (define-key evil-operator-state-map (kbd "C-g") #'evil-force-normal-state)
+  (evil-mode))
 (elpaca-wait)
 
 (use-package evil-collection
@@ -331,7 +332,8 @@
 				   (python "https://github.com/tree-sitter/tree-sitter-python")
 				   (c "https://github.com/tree-sitter/tree-sitter-c")
 				   (java "https://github.com/tree-sitter/tree-sitter-java")
-				   (javascript "https://github.com/tree-sitter/tree-sitter-javascript")))
+				   (javascript "https://github.com/tree-sitter/tree-sitter-javascript")
+				   (go "https://github.com/tree-sitter/tree-sitter-go")))
   (major-mode-remap-alist '((c++-mode . c++-ts-mode)
 			    (python-mode . python-ts-mode)
 			    (c-mode . c-ts-mode)
