@@ -79,7 +79,7 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 # install homebrew from there install ohmyposh
 eval "$(
 oh-my-posh init zsh --config \
-    /home/azmat/.config/ohmyposh/zen.toml
+	  /home/azmat/.config/ohmyposh/zen.toml 
 )"
 
 # man setting
