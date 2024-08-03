@@ -391,9 +391,9 @@
 
 (use-package consult-eglot)
 
-;; jsonrpc dependency for dape
-(use-package jsonrpc)
-(elpaca-wait)
+;; ;; jsonrpc dependency for dape
+;; (use-package jsonrpc)
+;; (elpaca-wait)
 
 ;; debugger setup
 (use-package dape
