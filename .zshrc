@@ -1,15 +1,15 @@
-# Lines configured by zsh-newuser-install
+# lines configured by zsh-newuser-install
 bindkey -e
-# End of lines configured by zsh-newuser-install
-# The following lines were added by compinstall
+# end of lines configured by zsh-newuser-install
+# the following lines were added by compinstall
 zstyle :compinstall filename '/home/azmat/.zshrc'
  
 autoload -Uz compinit
 compinit
-# End of lines added by compinstall
+# end of lines added by compinstall
  
 # case insensistive tab completion
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
 zstyle ':completion:*' menu select 
 
 # user prefrences
