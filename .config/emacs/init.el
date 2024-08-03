@@ -79,7 +79,8 @@
   (setq eldoc-echo-area-use-multiline-p nil)
   (setq isearch-lazy-count t)
   (setq make-backup-files nil)
-  (setq-default dired-listing-switches "-lh")
+  (setq package-install-upgrade-built-in t)
+  (setq-default dired-listing-switches "-lha")
 
   (fset 'yes-or-no-p 'y-or-n-p)
   (scroll-bar-mode -1)
