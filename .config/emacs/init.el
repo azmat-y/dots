@@ -511,6 +511,54 @@
   (ws-butler-global-mode))
 (elpaca-wait)
 
+(use-package window
+  :ensure nil
+  :custom
+  ; left,  top, right, bottom
+  (window-sides-slots '(1 0 1 1))
+  (display-buffer-alist
+   '(
+     (,(rx (| "*xref*"
+              "*grep*"
+              "*Occur*"))
+      display-buffer-reuse-window
+      (inhibit-same-window . nil))
+     ;; Yes there is a lot of repition here I could not get `(,(rx))
+     ;; expression to work for me
+     ("\\*vterm\\*"
+      display-buffer-in-side-window
+      (side . right)
+      (window . root)
+      (window-width . 60))
+
+     ("\\*compilation\\*"
+      display-buffer-in-side-window
+      (side . bottom)
+      (window . root)
+      (window-height . 0.45))
+
+     ("\\*lsp-help\\*"
+      display-buffer-in-side-window
+      (side . right)
+      (window . root)
+      (window-width . 60))
+
+
+     ("\\*Occur\\*"
+      display-buffer-in-direction
+      (direction . bottom)
+      (window . root)
+      (window-height . 0.35))
+
+     ("\*eldoc\w*"
+      display-buffer-in-side-window
+      (side . right)
+      (window-width . 60))
+
+     ("\\*Help\\*"
+      display-buffer-in-side-window
+      (window-width . 60)
+      (side . right)))))
 ;; keep customize edits separate
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (add-hook 'elpaca-after-init-hook (lambda () (load custom-file)))
