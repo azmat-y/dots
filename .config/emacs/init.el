@@ -559,6 +559,29 @@
       display-buffer-in-side-window
       (window-width . 60)
       (side . right)))))
+
+(use-package popper
+  :ensure t ; or :straight t
+  :bind (("C-'"   . popper-toggle)
+         ("M-'"   . popper-cycle)
+         ("C-M-'" . popper-toggle-type))
+  :init
+  (setq popper-group-function #'popper-group-by-projectile)
+  (setq popper-reference-buffers
+        '("\\*Messages\\*"
+          "Output\\*$"
+          "\\*Async Shell Command\\*"
+          "^\\*vterm.*\\*$"  vterm-mode  ;vterm as a popup
+	  "\\*lsp-help\\*" lsp-help-mode
+	  "\*eldoc\w*"
+	  xref--xref-buffer-mode
+          help-mode
+          compilation-mode))
+  (popper-mode +1)
+  (popper-echo-mode +1)
+  :config
+    (setq popper-display-control nil))
+
 ;; keep customize edits separate
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (add-hook 'elpaca-after-init-hook (lambda () (load custom-file)))
