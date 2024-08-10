@@ -528,8 +528,8 @@
      ("\\*vterm\\*"
       display-buffer-in-side-window
       (side . right)
-      (window . root)
-      (window-width . 60))
+      (window . bottom)
+      (window-height 0.40))
 
      ("\\*compilation\\*"
       display-buffer-in-side-window
@@ -552,13 +552,15 @@
 
      ("\*eldoc\w*"
       display-buffer-in-side-window
-      (side . right)
-      (window-width . 60))
+      (side . bottom)
+      (window . root)
+      (window-heigh . 0.40))
 
      ("\\*Help\\*"
       display-buffer-in-side-window
-      (window-width . 60)
-      (side . right)))))
+      (side . bottom)
+      (window . root)
+      (window-height . 0.40)))))
 
 (use-package popper
   :ensure t ; or :straight t
