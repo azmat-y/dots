@@ -81,6 +81,7 @@
   (setq make-backup-files nil)
   (setq package-install-upgrade-built-in t)
   (setq-default dired-listing-switches "-lha")
+  (setq-default flymake-mode nil)
 
   (fset 'yes-or-no-p 'y-or-n-p)
   (scroll-bar-mode -1)
@@ -350,8 +351,7 @@
   (yas-global-mode 1))
 
 (use-package flycheck
-  :ensure nil
-  :hook (prog-mode . flycheck-mode))
+  :hook (elpaca-after-init . global-flycheck-mode))
 
 (use-package hl-todo
   :init
@@ -373,7 +373,7 @@
   :hook ((c-ts-mode
 	  c++-ts-mode
 	  python-ts-mode
-	  java-ts-mode)  . eglot-ensure)
+	  java-ts-mode)  . (eglot-ensure flycheck-eglot-mode))
   ;; :custom
   ;; (eglot-ignored-server)
   :init
@@ -581,6 +581,9 @@
   (popper-echo-mode +1)
   :config
     (setq popper-display-control nil))
+
+(use-package flycheck-eglot
+  :ensure (:repo "https://github.com/flycheck/flycheck-eglot.git"))
 
 ;; keep customize edits separate
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
