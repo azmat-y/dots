@@ -584,6 +584,13 @@
   :config
     (setq popper-display-control nil))
 
+(use-package eglot-booster
+  :ensure (eglot-booster
+	   :host github
+	   :repo "jdtsmith/eglot-booster")
+  :after eglot
+  :config (eglot-booster-mode))
+
 (use-package flycheck-eglot
   :ensure (:repo "https://github.com/flycheck/flycheck-eglot.git"))
 
