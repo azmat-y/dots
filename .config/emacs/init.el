@@ -100,9 +100,11 @@
   )
 
 (use-package undo-tree
+  :init
+  (setq undo-tree-history-directory-alist '(("." . "~/.config/emacs/undo")))
+  (setq undo-tree-auto-save-history t)
   :config
-  (global-undo-tree-mode)
-  (setq undo-tree-auto-save-history t))
+  (global-undo-tree-mode))
 (elpaca-wait)
 
 (use-package evil
