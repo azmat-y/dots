@@ -375,7 +375,7 @@
   :hook ((c-ts-mode
 	  c++-ts-mode
 	  python-ts-mode
-	  java-ts-mode)  . (eglot-ensure flycheck-eglot-mode))
+	  java-ts-mode)  . eglot-ensure)
   ;; :custom
   ;; (eglot-ignored-server)
   :init
@@ -594,7 +594,11 @@
   :config (eglot-booster-mode))
 
 (use-package flycheck-eglot
-  :ensure (:repo "https://github.com/flycheck/flycheck-eglot.git"))
+  :ensure (:repo "https://github.com/flycheck/flycheck-eglot.git")
+  :after (flycheck eglot)
+  :config
+  (global-flycheck-eglot-mode 1))
+
 
 ;; keep customize edits separate
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
