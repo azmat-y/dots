@@ -244,6 +244,7 @@ bindsym Ctrl+Shift+k exec playerctl play-pause
 bindsym Ctrl+Shift+j exec playerctl previous
 bindsym Ctrl+Shift+l exec playerctl next
 bindsym Mod1+q exec $HOME/.local/bin/powercycle.sh
+bindsym Ctrl+Shift+t exec flameshot gui
 
 # swipe for workspaces
 bindgesture swipe:right workspace prev
