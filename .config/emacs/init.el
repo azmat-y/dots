@@ -40,6 +40,11 @@
 (add-hook 'after-init-hook #'elpaca-process-queues)
 (elpaca `(,@elpaca-order))
 
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("elpa" . "https://elpa.gnu.org/packages/")))
+
+(package-initialize)
+
 ;; my functions efs, ..
 (defun efs/display-startup-time ()
   (interactive)
