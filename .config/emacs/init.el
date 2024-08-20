@@ -475,7 +475,7 @@
   (setq org-startup-indented t)
   (setq org-clock-sound t)
   (setq org-todo-keywords
-	'((sequence "TODO" "FEEDBACK" "VERIFY" "|" "DONE" "SCRAPED")))
+	'((sequence "TODO" "FEEDBACK" "VERIFY" "PROJECT IDEA" "|" "DONE" "SCRAPED")))
 
   (setq org-capture-templates
       '(("t"              ; hotkey
