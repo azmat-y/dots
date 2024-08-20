@@ -48,8 +48,8 @@
 
 /* The whole bar */
 #waybar {
-    background-color: #282828;
-    color: #ebdbb2;
+    background-color: #000000;
+    color: #ffffff;
     font-family: CaskaydiaCoveNerdFont, UbuntuMonoNerdFont, Jetbrainsmononerdfontmono, Cantarell, Noto Sans, sans-serif;
     font-size: 14px;
 }
@@ -86,6 +86,14 @@
 
 #battery.critical {
     color: #cc241d;
+}
+
+#battery.full {
+    color: lawngreen;
+}
+
+#battery.charging {
+    color: lawngreen;
 }
 
 /* #battery.warning.discharging { */
@@ -197,7 +205,7 @@
 }
 
 #workspaces button:hover {
-  background: #323232;
+  background: #000000;
   box-shadow: inherit;
   text-shadow: inherit;
 }
