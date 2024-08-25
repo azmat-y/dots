@@ -34,6 +34,7 @@
         "pulseaudio",
     //  "custom/keyboard-layout",
       "battery",
+      "backlight",
         "network",
         "tray"
     ],
@@ -93,10 +94,10 @@
 
     "network": {
         "interval": 5,
-        "format-wifi": "  {essid} ({signalStrength}%)", // Icon: wifi
+        "format-wifi": "  ({signalStrength}%)", // Icon: wifi
         "format-ethernet": "  {ipaddr}", // Icon: ethernet
         "format-disconnected": "⚠  Disconnected",
-        "tooltip-format": "{ifname}: {ipaddr}",
+        "tooltip-format": "{essid} {ifname}: {ipaddr}",
         "on-click": "alacritty --title='nmtui' --command='nmtui'"
     },
 
@@ -113,7 +114,7 @@
             "car": "", // Icon: car
             "default": ["", ""] // Icons: volume-down, volume-up
         },
-        "on-click": "alacritty --title='Sound Mixer' --command='pulsemixer'",
+	"on-click": "pavucontrol",
         "tooltip": true
     },
 
@@ -177,4 +178,10 @@
     "exec": "$HOME/.config/waybar/custom_modules/rpm.sh"
     },
 
+    "backlight": {
+    "device": "intel_backlight",
+    "format": " {icon} ",
+    "format-icons": ["󰃞", "󰃟", "󰃠"],
+    "tooltip-format":"brightness {percent}%"
+    },
 }
