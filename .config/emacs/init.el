@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t -*-
 
 ;; elpaca setup
 (defvar elpaca-installer-version 0.7)
@@ -128,6 +129,13 @@
   (setq evil-undo-system 'undo-tree)
 
   :config
+  ;; instead of normal mode launch the following in respective modes
+  (dolist (p '((Info-mode . emacs)
+	     (dired-mode . emacs)
+	     (compilation-mode . emacs)
+	     (help-mode . emacs)))
+  (evil-set-initial-state (car p) (cdr p)))
+
   ; for using C-g to quit normal mode
   (define-key evil-insert-state-map  (kbd "C-g") #'evil-force-normal-state)
   (define-key evil-replace-state-map (kbd "C-g") #'evil-force-normal-state)
@@ -604,6 +612,11 @@
   :config
   (global-flycheck-eglot-mode 1))
 
+(use-package casual-info
+  :ensure t
+  :after info
+  :bind (:map Info-mode-map
+	      ("C-o" . #'casual-info-tmenu)))
 
 ;; keep customize edits separate
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
