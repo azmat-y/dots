@@ -35,7 +35,8 @@
     //  "custom/keyboard-layout",
       "battery",
       "backlight",
-        "network",
+    "custom/gammastep",
+    "network",
         "tray"
     ],
 
@@ -184,4 +185,11 @@
     "format-icons": ["󰃞", "󰃟", "󰃠"],
     "tooltip-format":"brightness {percent}%"
     },
+    "custom/gammastep":{
+  "format": " {icon} ",
+  "format-source": "{icon} ",
+  "format-icons": ["󰰔"],
+  "on-click": "bash ~/.config/waybar/custom_modules/gammastep.sh",
+  "tooltip-format":"Night mode Toggle"
+},
 }
