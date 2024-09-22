@@ -425,7 +425,7 @@
 
   :init
   ;; To use window configuration like gud (gdb-mi)
-  ;; (setq dape-buffer-window-arrangement 'gud)
+  (setq dape-buffer-window-arrangement 'gud)
 
   :config
   ;; Info buffers to the right
@@ -439,8 +439,8 @@
   ;; (remove-hook 'dape-on-start-hooks 'dape-repl)
 
   ;; To display info and/or repl buffers on stopped
-  ;; (add-hook 'dape-on-stopped-hooks 'dape-info)
-  ;; (add-hook 'dape-on-stopped-hooks 'dape-repl)
+  (add-hook 'dape-on-stopped-hooks 'dape-info)
+  (add-hook 'dape-on-stopped-hooks 'dape-repl)
 
   ;; Kill compile buffer on build success
   ;; (add-hook 'dape-compile-compile-hooks 'kill-buffer)
