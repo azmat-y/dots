@@ -1,46 +1,5 @@
 ;; -*- lexical-binding: t -*-
 
-;; elpaca setup
-(defvar elpaca-installer-version 0.7)
-(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
-(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
-(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
-(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-                              :ref nil :depth 1
-                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
-                              :build (:not elpaca--activate-package)))
-(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
-       (build (expand-file-name "elpaca/" elpaca-builds-directory))
-       (order (cdr elpaca-order))
-       (default-directory repo))
-  (add-to-list 'load-path (if (file-exists-p build) build repo))
-  (unless (file-exists-p repo)
-    (make-directory repo t)
-    (when (< emacs-major-version 28) (require 'subr-x))
-    (condition-case-unless-debug err
-        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-                 ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
-                                                 ,@(when-let ((depth (plist-get order :depth)))
-                                                     (list (format "--depth=%d" depth) "--no-single-branch"))
-                                                 ,(plist-get order :repo) ,repo))))
-                 ((zerop (call-process "git" nil buffer t "checkout"
-                                       (or (plist-get order :ref) "--"))))
-                 (emacs (concat invocation-directory invocation-name))
-                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-
-                 ((require 'elpaca))
-                 ((elpaca-generate-autoloads "elpaca" repo)))
-            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
-          (error "%s" (with-current-buffer buffer (buffer-string))))
-      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
-  (unless (require 'elpaca-autoloads nil t)
-    (require 'elpaca)
-    (elpaca-generate-autoloads "elpaca" repo)
-    (load "./elpaca-autoloads")))
-(add-hook 'after-init-hook #'elpaca-process-queues)
-(elpaca `(,@elpaca-order))
-
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("elpa" . "https://elpa.gnu.org/packages/")))
 
@@ -59,16 +18,8 @@
   (unless (display-graphic-p)
     (corfu-terminal-mode +1)))
 
-;; Install use-package support
-(elpaca elpaca-use-package
-  ;; Enable :elpaca use-package keyword.
-  (elpaca-use-package-mode)
-  ;; Assume :elpaca t unless otherwise specified.
-  (setq elpaca-use-package-by-default t))
-
-;; Block until current queue processed.
-(elpaca-wait)
-
+(setq use-package-always-ensure t)
+;; (unless package-archive-contents (package-refresh-contents t))
 (use-package emacs
   :ensure nil
   :hook (prog-mode . display-line-numbers-mode)
@@ -111,7 +62,7 @@
   (setq undo-tree-auto-save-history t)
   :config
   (global-undo-tree-mode))
-(elpaca-wait)
+
 
 (use-package evil
   :hook (prog-mode . evil-mode)
@@ -141,37 +92,37 @@
   (define-key evil-replace-state-map (kbd "C-g") #'evil-force-normal-state)
   (define-key evil-visual-state-map  (kbd "C-g") #'evil-force-normal-state)
   (define-key evil-operator-state-map (kbd "C-g") #'evil-force-normal-state))
-(elpaca-wait)
+
 
 (use-package evil-collection
   :after evil
   :config
   (setq evil-collection-mode-list '(dashboard dired ibuffer))
   (evil-collection-init))
-(elpaca-wait)
+
 
 (use-package general
   :config
   (general-evil-setup t))
-(elpaca-wait)
+
 
 (use-package which-key
   :init
   (which-key-mode))
-(elpaca-wait)
+
 
 ;; Enable vertico
 (use-package vertico
   :init
   (vertico-mode))
-(elpaca-wait)
+
 
 ;; Persist history over Emacs restarts. Vertico sorts by history position.
 (use-package savehist
   :ensure nil
   :init
   (savehist-mode))
-(elpaca-wait)
+
 
 
 (use-package orderless
@@ -183,14 +134,14 @@
   :bind (:map grep-mode-map
 	      ("e" . wgrep-change-to-wgrep-mode)
 	      ("C-c C-c" . wgrep-finish-edit)))
-(elpaca-wait)
+
 
 (use-package vterm)
 (use-package magit)
 (use-package transient)
 
 (use-package forge :after magit)
-(elpaca-wait)
+
 ;; Enable rich annotations using the Marginalia package
 (use-package marginalia
   ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
@@ -204,14 +155,14 @@
   ;; the mode gets enabled right away. Note that this forces loading the
   ;; package.
   (marginalia-mode))
-(elpaca-wait)
+
 
 (use-package consult)
 (use-package consult-flycheck)
 (use-package imenu-list)
 
 (use-package ef-themes)
-(elpaca-wait)
+
 (consult-theme 'ef-elea-dark)
 
 
@@ -260,31 +211,31 @@
   (:keymap 'projectile-mode-map
 	   :prefix "C-c"
 	   "p" 'projectile-command-map))
-(elpaca-wait)
+
 
 (use-package embark
   :init
   (require 'bind-key)
   (bind-key "C-," #'embark-act))
-(elpaca-wait)
+
 
 (use-package  embark-consult)
-(elpaca-wait)
+
 
 (use-package surround
   :bind-keymap ("M-n" . surround-keymap))
-(elpaca-wait)
+
 
 (use-package evil-goggles
   :config
   (evil-goggles-mode))
-(elpaca-wait)
+
 
 (use-package ace-window
   :init
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   (global-set-key (kbd "M-o") #'ace-window))
-(elpaca-wait)
+
 
 (use-package corfu
   ;; Optional customizations
@@ -319,7 +270,7 @@
   ; (kind-icon-default-face 'corfu-default) ; only needed with blend-background
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
-(elpaca-wait)
+
 
 ;; enable corfu in minibuffer
 (defun corfu-enable-always-in-minibuffer ()
@@ -338,7 +289,7 @@
   (setq doom-modeline-support-imenu t
 	doom-modeline-buffer-file-name-style 'file-name)
   :hook (after-init . doom-modeline-mode))
-(elpaca-wait)
+
 
 ;; setting up tree-sitter
 (require 'treesit)
@@ -373,7 +324,7 @@
   (setq hl-todo-keyword-faces
 	'(("TODO" . "#FF0000")))
   (global-hl-todo-mode))
-(elpaca-wait)
+
 
 (use-package eglot
   :ensure nil
@@ -395,20 +346,20 @@
   ;; Option 1: Specify explicitly to use Orderless for Eglot
   (setq completion-category-overrides '((eglot (styles orderless))
 					(eglot-capf (styles orderless)))))
-(elpaca-wait)
+
 
 ;; java setup https://andreyor.st/posts/2023-09-09-migrating-from-lsp-mode-to-eglot/
 (use-package jarchive
   :after eglot
   :config
   (jarchive-setup))
-(elpaca-wait)
+
 
 (use-package consult-eglot)
 
 ;; ;; jsonrpc dependency for dape
 ;; (use-package jsonrpc)
-;; (elpaca-wait)
+;;
 
 ;; debugger setup
 (use-package dape
@@ -450,7 +401,7 @@
 
   ;; Projectile users
   (setq dape-cwd-fn 'projectile-project-root))
-(elpaca-wait)
+
 
 (use-package recentf
   :ensure nil
@@ -460,7 +411,7 @@
 (use-package org-superstar
   :config
   :hook (org-mode . org-superstar-mode))
-(elpaca-wait)
+
 
 (use-package org-mode
   :ensure nil
@@ -518,13 +469,13 @@
   (add-hook 'elpaca-after-init-hook #'dashboard-insert-startupify-lists)
   (add-hook 'elpaca-after-init-hook #'dashboard-initialize)
   (dashboard-setup-startup-hook))
-(elpaca-wait)
+
 
 ;; delete trailing whitespace
 (use-package ws-butler
   :init
   (ws-butler-global-mode))
-(elpaca-wait)
+
 
 (use-package window
   :ensure nil
@@ -620,7 +571,6 @@
 
 ;; keep customize edits separate
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-(add-hook 'elpaca-after-init-hook (lambda () (load custom-file)))
 (add-hook 'emacs-startup-hook #'efs/display-startup-time)
 (add-hook 'emacs-startup-hook #'my/activate-corfu-terminal)
 (put 'upcase-region 'disabled nil)
