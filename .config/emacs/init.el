@@ -3,7 +3,7 @@
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("elpa" . "https://elpa.gnu.org/packages/")))
 
-(package-initialize)
+;; (package-initialize)
 
 ;; my functions efs, ..
 (defun efs/display-startup-time ()
@@ -19,6 +19,11 @@
     (corfu-terminal-mode +1)))
 
 (setq use-package-always-ensure t)
+
+(progn (unless (package-installed-p 'vc-use-package)
+  (package-vc-install "https://github.com/slotThe/vc-use-package"))
+(require 'vc-use-package))
+
 ;; (unless package-archive-contents (package-refresh-contents t))
 (use-package emacs
   :ensure nil
@@ -37,6 +42,11 @@
   (setq isearch-lazy-count t)
   (setq make-backup-files nil)
   (setq package-install-upgrade-built-in t)
+  (setq use-package-compute-statistics t)
+  (setq compilation-scroll-output t)
+  (setq compilation-auto-jump-to-next t)
+  (setq compilation-max-output-line-length nil)
+  (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
   (setq-default dired-listing-switches "-lha")
   (setq-default flymake-mode nil)
 
@@ -45,7 +55,7 @@
   (tool-bar-mode -1)          ; Disable the toolbar
   (tooltip-mode -1)           ; Disable tooltips
   (global-visual-line-mode 1)
-  (set-fringe-mode 5)
+  ;; (set-fringe-mode 5)
   (menu-bar-mode -1)            ; Disable the menu bar
   (electric-pair-mode)	      ; completes delimiters like ({["'"]})
   (show-paren-mode)
@@ -53,8 +63,7 @@
   ; UbuntuMonoNerdFont
   (set-face-attribute 'default nil :font "IosevkaTermNerdFontMono" :height 140)
   (add-to-list 'default-frame-alist '(font . "IosevkaTermNerdFontMono-14"))
-  (global-set-key (kbd "M-[") 'universal-argument)
-  )
+  (global-set-key (kbd "M-[") 'universal-argument))
 
 (use-package undo-tree
   :init
@@ -100,30 +109,24 @@
   (setq evil-collection-mode-list '(dashboard dired ibuffer))
   (evil-collection-init))
 
-
 (use-package general
   :config
   (general-evil-setup t))
 
-
 (use-package which-key
   :init
   (which-key-mode))
-
 
 ;; Enable vertico
 (use-package vertico
   :init
   (vertico-mode))
 
-
 ;; Persist history over Emacs restarts. Vertico sorts by history position.
 (use-package savehist
   :ensure nil
   :init
   (savehist-mode))
-
-
 
 (use-package orderless
   :custom
@@ -135,10 +138,13 @@
 	      ("e" . wgrep-change-to-wgrep-mode)
 	      ("C-c C-c" . wgrep-finish-edit)))
 
+(use-package vterm
+  :commands (vterm))
 
-(use-package vterm)
-(use-package magit)
-(use-package transient)
+(use-package magit
+  :commands (magit-status))
+
+;; (use-package transient)
 
 (use-package forge :after magit)
 
@@ -156,14 +162,15 @@
   ;; package.
   (marginalia-mode))
 
-
 (use-package consult)
 (use-package consult-flycheck)
 (use-package imenu-list)
 
 (use-package ef-themes)
+(use-package adwaita-dark-theme)
+(use-package dracula-theme)
 
-(consult-theme 'ef-elea-dark)
+(consult-theme 'dracula)
 
 
 (nvmap :states '(normal insert visual emacs) :keymaps 'override :prefix "SPC" :global-prefix "M-SPC"
@@ -225,12 +232,6 @@
 (use-package surround
   :bind-keymap ("M-n" . surround-keymap))
 
-
-(use-package evil-goggles
-  :config
-  (evil-goggles-mode))
-
-
 (use-package ace-window
   :init
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
@@ -260,7 +261,7 @@
   :init
   (global-corfu-mode))
 
-(use-package corfu-terminal)
+;; (use-package corfu-terminal)
 
 (use-package kind-icon
   :ensure t
@@ -310,14 +311,14 @@
 			    (javascript-mode . js-ts-mode)))
   (treesit-font-lock-level 4))
 
-(use-package yasnippet-snippets)
-
 (use-package yasnippet
-  :init
-  (yas-global-mode 1))
+  :hook (prog-mode . yas-minor-mode))
+
+(use-package yasnippet-snippets
+  :after yasnippet)
 
 (use-package flycheck
-  :hook (elpaca-after-init . global-flycheck-mode))
+  :hook (after-init . global-flycheck-mode))
 
 (use-package hl-todo
   :init
@@ -355,8 +356,6 @@
   (jarchive-setup))
 
 
-(use-package consult-eglot)
-
 ;; ;; jsonrpc dependency for dape
 ;; (use-package jsonrpc)
 ;;
@@ -366,42 +365,44 @@
   :preface
   ;; By default dape shares the same keybinding prefix as `gud'
   ;; If you do not want to use any prefix, set it to nil.
-  (setq dape-key-prefix "\C-x\C-a")
+  ;; (setq dape-key-prefix "\C-x\C-a")
 
   ;; :hook
-  ;; Save breakpoints on quit
-  ;; ((kill-emacs . dape-breakpoint-save)
-  ;; Load breakpoints on startup
-  ;;  (after-init . dape-breakpoint-load))
-
-  :init
-  ;; To use window configuration like gud (gdb-mi)
-  (setq dape-buffer-window-arrangement 'gud)
+  ;; ;; Save breakpoints on quit
+  ;; (kill-emacs . dape-breakpoint-save)
+  ;; ;; Load breakpoints on startup
+  ;; (after-init . dape-breakpoint-load)
 
   :config
+  ;; Turn on global bindings for setting breakpoints with mouse
+  (dape-breakpoint-global-mode)
+
   ;; Info buffers to the right
   (setq dape-buffer-window-arrangement 'right)
 
-  ;; Global bindings for setting breakpoints with mouse
-  (dape-breakpoint-global-mode)
+  ;; Info buffers like gud (gdb-mi)
+  ;; (setq dape-buffer-window-arrangement 'gud)
+  ;; (setq dape-info-hide-mode-line nil)
 
-  ;; To not display info and/or buffers on startup
-  ;; (remove-hook 'dape-on-start-hooks 'dape-info)
-  ;; (remove-hook 'dape-on-start-hooks 'dape-repl)
+  ;; Pulse source line (performance hit)
+  (add-hook 'dape-display-source-hook 'pulse-momentary-highlight-one-line) ;
 
-  ;; To display info and/or repl buffers on stopped
-  (add-hook 'dape-on-stopped-hooks 'dape-info)
-  (add-hook 'dape-on-stopped-hooks 'dape-repl)
-
-  ;; Kill compile buffer on build success
-  ;; (add-hook 'dape-compile-compile-hooks 'kill-buffer)
+  ;; Showing inlay hints
+  (setq dape-inlay-hints t)
 
   ;; Save buffers on startup, useful for interpreted languages
-  ;; (add-hook 'dape-on-start-hooks (lambda () (save-some-buffers t t)))
+  (add-hook 'dape-start-hook (lambda () (save-some-buffers t t)))
+
+  ;; Kill compile buffer on build success
+  (add-hook 'dape-compile-hook 'kill-buffer)
 
   ;; Projectile users
   (setq dape-cwd-fn 'projectile-project-root))
 
+;; Enable repeat mode for more ergonomic `dape' use
+(use-package repeat
+  :config
+  (repeat-mode))
 
 (use-package recentf
   :ensure nil
@@ -428,11 +429,12 @@
   (setq org-log-done 'time)
   (setq org-export-coding-system 'utf-8)
   (setq org-return-follows-link  t)
-  (setq org-default-notes-file (concat org-directory "/notes.org"))
+  (setq org-default-notes-file (concat org-directory "/agenda.org"))
   (setq org-list-indent-offset 2)
   (setq org-ellipsis " ▼")
   (setq org-startup-indented t)
   (setq org-clock-sound t)
+  (setq org-agenda-files '("~/Org/agenda.org"))
   (setq org-todo-keywords
 	'((sequence "TODO" "FEEDBACK" "VERIFY" "PROJECT IDEA" "|" "DONE" "SCRAPED")))
 
@@ -456,7 +458,6 @@
 	 "* Entered on %u\n %i%?"))))
 
 ;; dashboard
-;; use-package with Elpaca:
 (use-package dashboard
   :init
   (setq dashboard-startup-banner 'logo
@@ -466,8 +467,8 @@
 			  (recents . 3)
 			  (projects . 3)))
   :config
-  (add-hook 'elpaca-after-init-hook #'dashboard-insert-startupify-lists)
-  (add-hook 'elpaca-after-init-hook #'dashboard-initialize)
+  (add-hook 'after-init-hook #'dashboard-insert-startupify-lists)
+  (add-hook 'after-init-hook #'dashboard-initialize)
   (dashboard-setup-startup-hook))
 
 
@@ -493,9 +494,9 @@
      ;; expression to work for me
      ("\\*vterm\\*"
       display-buffer-in-side-window
-      (side . right)
+      (side . bottom)
       (window . bottom)
-      (window-height 0.40))
+      (window-height 0.60))
 
      ("\\*compilation\\*"
       display-buffer-in-side-window
@@ -520,13 +521,13 @@
       display-buffer-in-side-window
       (side . bottom)
       (window . root)
-      (window-heigh . 0.40))
+      (window-heigh . 0.80))
 
      ("\\*Help\\*"
       display-buffer-in-side-window
       (side . bottom)
       (window . root)
-      (window-height . 0.40)))))
+      (window-height . 0.60)))))
 
 (use-package popper
   :ensure t ; or :straight t
@@ -551,23 +552,29 @@
     (setq popper-display-control nil))
 
 (use-package eglot-booster
-  :ensure (eglot-booster
-	   :host github
-	   :repo "jdtsmith/eglot-booster")
+  :vc (:fetcher github :repo  "jdtsmith/eglot-booster")
   :after eglot
   :config (eglot-booster-mode))
 
 (use-package flycheck-eglot
-  :ensure (:repo "https://github.com/flycheck/flycheck-eglot.git")
   :after (flycheck eglot)
   :config
   (global-flycheck-eglot-mode 1))
 
-(use-package casual-info
-  :ensure t
-  :after info
-  :bind (:map Info-mode-map
-	      ("C-o" . #'casual-info-tmenu)))
+(use-package envrc
+  :hook (after-init . envrc-global-mode))
+
+(use-package dired
+  :ensure nil
+  :commands (dired)
+  :hook
+  ((dired-mode . dired-hide-details-mode)
+   (dired-mode . hl-line-mode))
+  :config
+  (setq dired-recursive-copies 'always)
+  (setq dired-recursive-deletes 'always)
+  (setq delete-by-moving-to-trash t)
+  (setq dired-dwim-target t))
 
 ;; keep customize edits separate
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
