@@ -22,7 +22,7 @@
         "sway/workspaces",
         "sway/mode",
 	"custom/rpm",
-	"idle_inhibitor"
+	"idle_inhibitor",
     ],
      "modules-center": [
 	   "clock"
@@ -37,7 +37,8 @@
       "backlight",
     "custom/gammastep",
     "network",
-        "tray"
+        "tray",
+	"custom/notificaton"
     ],
 
 
@@ -63,6 +64,14 @@
             ""  // Icon: battery-empty
         ],
         "tooltip": true
+    },
+
+    "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": {
+        "activated": " ",
+        "deactivated": " "
+    	}
     },
 
     "cpu": {
@@ -192,4 +201,11 @@
   "on-click": "bash ~/.config/waybar/custom_modules/gammastep.sh",
   "tooltip-format":"Night mode Toggle"
 },
+  "custom/notificaton": {
+  "format": " {icon} ",
+  "format-source": "{icon}",
+  "format-icons": ["\uf0f3"],
+  "tooltip-format":"Notifications",
+  "on-click": "swaync-client -t -sw"
+  }
 }

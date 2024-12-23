@@ -32,7 +32,7 @@ set $menu $rofi_cmd -show combi -combi-modes drun#run -modes combi
 # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
 # Requires: desktop-backgrounds-compat, swaybg
 # output * bg /usr/share/backgrounds/default.png fill
-output * bg $HOME/Downloads/wallpaper/pexels-moklebust-9782172.jpg fill
+output * bg $HOME/Downloads/wallpaper/pexels-pixabay-268533.jpg fill
 #
 # Example configuration:
 #
@@ -239,12 +239,17 @@ bindsym $mod+r mode "resize"
 
 include '$(/usr/libexec/sway/layered-include "/usr/share/sway/config.d/*.conf" "/etc/sway/config.d/*.conf" "${XDG_CONFIG_HOME:-$HOME/.config}/sway/config.d/*.conf")'
 
+# launch programs
+exec swaync
+
 # custom shortcuts
 bindsym Ctrl+Shift+k exec playerctl play-pause
 bindsym Ctrl+Shift+j exec playerctl previous
 bindsym Ctrl+Shift+l exec playerctl next
 bindsym Mod1+q exec $HOME/.local/bin/powercycle.sh
 bindsym Ctrl+Shift+t exec flameshot gui
+bindsym Ctrl+Shift+c exec flameshot full
+bindsym $mod+Shift+n exec swaync-client -t -sw
 
 # swipe for workspaces
 bindgesture swipe:right workspace prev

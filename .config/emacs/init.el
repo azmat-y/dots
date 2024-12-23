@@ -168,9 +168,9 @@
 
 (use-package ef-themes)
 (use-package adwaita-dark-theme)
-(use-package dracula-theme)
+(use-package doom-themes)
 
-(consult-theme 'dracula)
+(consult-theme 'doom-dracula)
 
 
 (nvmap :states '(normal insert visual emacs) :keymaps 'override :prefix "SPC" :global-prefix "M-SPC"
@@ -373,6 +373,7 @@
   ;; ;; Load breakpoints on startup
   ;; (after-init . dape-breakpoint-load)
 
+  :commands (dape)
   :config
   ;; Turn on global bindings for setting breakpoints with mouse
   (dape-breakpoint-global-mode)
