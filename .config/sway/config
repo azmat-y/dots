@@ -25,7 +25,7 @@ set $rofi_cmd rofi \
 # Shows a combined list of the applications with desktop files and
 # executables from PATH.
 # TODO: add window with the next release of rofi-wayland
-set $menu $rofi_cmd -show combi -combi-modes drun#run -modes combi
+set $menu $rofi_cmd -show combi -combi-modes "window,drun"#run -modes combi
 
 ### Output configuration
 #
@@ -246,7 +246,7 @@ exec swaync
 bindsym Ctrl+Shift+k exec playerctl play-pause
 bindsym Ctrl+Shift+j exec playerctl previous
 bindsym Ctrl+Shift+l exec playerctl next
-bindsym Mod1+q exec $HOME/.local/bin/powercycle.sh
+# bindsym Mod1+q exec $HOME/.local/bin/powercycle.sh
 bindsym Ctrl+Shift+t exec flameshot gui
 bindsym Ctrl+Shift+c exec flameshot full
 bindsym $mod+Shift+n exec swaync-client -t -sw
@@ -254,3 +254,6 @@ bindsym $mod+Shift+n exec swaync-client -t -sw
 # swipe for workspaces
 bindgesture swipe:right workspace prev
 bindgesture swipe:left workspace next
+
+# options
+exec autotiling
