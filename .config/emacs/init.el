@@ -5,6 +5,9 @@
 
 ;; (package-initialize)
 
+;; load files
+(load (expand-file-name "~/.config/emacs/env.el"))
+
 ;; my functions efs, ..
 (defun efs/display-startup-time ()
   (interactive)
@@ -170,8 +173,7 @@
 (use-package adwaita-dark-theme)
 (use-package doom-themes)
 
-(consult-theme 'doom-dracula)
-
+(consult-theme (intern (getenv "emacs_theme")))
 
 (nvmap :states '(normal insert visual emacs) :keymaps 'override :prefix "SPC" :global-prefix "M-SPC"
   "s"   '(:ignore t :wk "search")
@@ -414,10 +416,13 @@
   :config
   :hook (org-mode . org-superstar-mode))
 
+(use-package flyspell
+  :ensure nil
+  :hook (org-mode . flyspell-mode))
 
 (use-package org-mode
   :ensure nil
-  :hook (org-mode . ispell-minor-mode)
+  :hook (org-mode . auto-fill-mode)
   :init
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)
@@ -562,9 +567,6 @@
   :config
   (global-flycheck-eglot-mode 1))
 
-(use-package envrc
-  :hook (after-init . envrc-global-mode))
-
 (use-package dired
   :ensure nil
   :commands (dired)
@@ -577,8 +579,29 @@
   (setq delete-by-moving-to-trash t)
   (setq dired-dwim-target t))
 
+(use-package evil-anzu
+  :after evil
+  :config
+  (global-anzu-mode))
+
+(use-package casual-suite
+  :bind (:map
+	 calc-mode-map
+	 ("C-o" . casual-calc-tmenu)))
+
+(use-package slime
+  :defer t
+  :hook (common-lisp-mode . slime)
+  :init
+  (setq inferior-lisp-program "/usr/bin/sbcl")
+  :config
+  (load (expand-file-name "~/.quicklisp/slime-helper.el")))
+
 ;; keep customize edits separate
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (add-hook 'emacs-startup-hook #'efs/display-startup-time)
 (add-hook 'emacs-startup-hook #'my/activate-corfu-terminal)
 (put 'upcase-region 'disabled nil)
+
+(use-package envrc
+  :hook (after-init . envrc-global-mode))
