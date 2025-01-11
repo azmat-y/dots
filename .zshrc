@@ -113,3 +113,6 @@ fi
 # gitignore command line tool
 function gi() { curl -sLw "\n" https://www.toptal.com/developers/gitignore/api/$@ ;}
 source <(fzf --zsh)
+
+# subword mode for navigating line
+WORDCHARS=''
