@@ -21,6 +21,11 @@
   (unless (display-graphic-p)
     (corfu-terminal-mode +1)))
 
+(defun az-search-knowledgebase ()
+  "Search the knowledgebase using ripgrep using consult"
+  (interactive)
+  (consult-ripgrep "/home/azmat/Org/Knowledgebase/"))
+
 (setq use-package-always-ensure t)
 
 (progn (unless (package-installed-p 'vc-use-package)
@@ -66,7 +71,9 @@
   ; UbuntuMonoNerdFont
   (set-face-attribute 'default nil :font "IosevkaTermNerdFontMono" :height 140)
   (add-to-list 'default-frame-alist '(font . "IosevkaTermNerdFontMono-14"))
-  (global-set-key (kbd "M-[") 'universal-argument))
+  (global-set-key (kbd "M-[") 'universal-argument)
+  (run-at-time nil (* 5 60) 'recentf-save-list)
+  (add-hook find-file-hook #'recentf-save-list))
 
 (use-package undo-tree
   :init
@@ -180,6 +187,7 @@
   "s i" '(consult-imenu :wk "consult-imenu")
   "s r" '(consult-ripgrep :wk "consult-ripgrep")
   "s f" '(consult-flycheck :wk "consult-flycheck")
+  "s k" '(az-search-knowledgebase :wk "search-knowledgebase")
   "t"   '(:ignore t :wk "toggles")
   "t i" '(imenu-list-smart-toggle :wk "imenu-list-toggle")
   "t r" '(toggle-truncate-lines :wk "toggle-truncate-lines")
@@ -427,7 +435,7 @@
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)
   (setq org-confirm-babel-evaluate nil)
-  (setq org-edit-src-content-indentation 0)
+  (setq org-edit-src-content-indentation 2)
   (setq org-agenda-span 'week)
   (setq org-directory "~/Org")
   (setq org-hide-leading-stars t)
@@ -461,7 +469,17 @@
 	 "Journal Entry"
 	 entry
 	 (file+datetree "~/Org/journal.org")
-	 "* Entered on %u\n %i%?"))))
+	 "* Entered on %u\n %i%?")
+	("D"
+	 "Daily Agenda"
+	 entry
+	 (file+datetree "~/Org/day-agenda.org")
+	 "* Entered on %u\n %i%?")
+	("K"
+	 "Knowledgebase"
+	 entry
+	 (file "~/Org/Knowledgebase/to-note.org")
+	 "* %i%?"))))
 
 ;; dashboard
 (use-package dashboard
@@ -502,7 +520,7 @@
       display-buffer-in-side-window
       (side . bottom)
       (window . bottom)
-      (window-height 0.60))
+      (window-height 0.45))
 
      ("\\*compilation\\*"
       display-buffer-in-side-window
@@ -521,19 +539,20 @@
       display-buffer-in-direction
       (direction . bottom)
       (window . root)
-      (window-height . 0.35))
+      (window-height . 0.45))
 
      ("\*eldoc\w*"
-      display-buffer-in-side-window
-      (side . bottom)
+      ;; display-buffer-in-side-window
+      display-buffer-in-direction
+      (side . right)
       (window . root)
-      (window-heigh . 0.80))
+      (window-heigh . 0.40))
 
      ("\\*Help\\*"
       display-buffer-in-side-window
       (side . bottom)
       (window . root)
-      (window-height . 0.60)))))
+      (window-height . 0.45)))))
 
 (use-package popper
   :ensure t ; or :straight t
@@ -557,10 +576,11 @@
   :config
     (setq popper-display-control nil))
 
-(use-package eglot-booster
-  :vc (:fetcher github :repo  "jdtsmith/eglot-booster")
-  :after eglot
-  :config (eglot-booster-mode))
+;; (use-package eglot-booster
+;;   :ensure nil
+;;   :vc (:fetcher github :repo  "jdtsmith/eglot-booster")
+;;   :after eglot
+;;   :config (eglot-booster-mode))
 
 (use-package flycheck-eglot
   :after (flycheck eglot)
@@ -587,7 +607,9 @@
 (use-package casual-suite
   :bind (:map
 	 calc-mode-map
-	 ("C-o" . casual-calc-tmenu)))
+	 ("C-o" . casual-calc-tmenu)
+	 :map Info-mode-map
+	 ("C-o" . casual-info-tmenu)))
 
 (use-package slime
   :defer t
@@ -597,6 +619,18 @@
   :config
   (load (expand-file-name "~/.quicklisp/slime-helper.el")))
 
+(use-package ultra-scroll
+  :ensure nil
+  :vc (:fetcher github :repo  "jdtsmith/ultra-scroll")
+  :init
+  (setq scroll-conservatively 101 ; important!
+        scroll-margin 0)
+  :config
+  (ultra-scroll-mode 1))
+
+(use-package org-modern
+  :hook (org-mode . org-modern-mode))
+
 ;; keep customize edits separate
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (add-hook 'emacs-startup-hook #'efs/display-startup-time)
@@ -605,3 +639,18 @@
 
 (use-package envrc
   :hook (after-init . envrc-global-mode))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-vc-selected-packages
+   '((ultra-scroll :vc-backend Git :url "https://github.com/jdtsmith/ultra-scroll")
+     (eglot-booster :vc-backend Git :url "https://github.com/jdtsmith/eglot-booster")
+     (vc-use-package :vc-backend Git :url "https://github.com/slotThe/vc-use-package"))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
