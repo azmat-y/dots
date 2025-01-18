@@ -255,5 +255,5 @@ bindsym $mod+Shift+n exec swaync-client -t -sw
 bindgesture swipe:right workspace prev
 bindgesture swipe:left workspace next
 
-# options
-exec autotiling
+# # options
+# exec autotiling

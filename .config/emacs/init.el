@@ -14,7 +14,7 @@
   (message "Emacs loaded in %s with %d garbage collections."
            (format "%.2f seconds"
                    (float-time
-                     (time-subtract after-init-time before-init-time)))
+                    (time-subtract after-init-time before-init-time)))
            gcs-done))
 
 (defun my/activate-corfu-terminal ()
@@ -29,8 +29,8 @@
 (setq use-package-always-ensure t)
 
 (progn (unless (package-installed-p 'vc-use-package)
-  (package-vc-install "https://github.com/slotThe/vc-use-package"))
-(require 'vc-use-package))
+	 (package-vc-install "https://github.com/slotThe/vc-use-package"))
+       (require 'vc-use-package))
 
 ;; (unless package-archive-contents (package-refresh-contents t))
 (use-package emacs
@@ -55,6 +55,7 @@
   (setq compilation-auto-jump-to-next t)
   (setq compilation-max-output-line-length nil)
   (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
+  (add-hook 'prog-mode-hook #'indent-bars-mode)
   (setq-default dired-listing-switches "-lha")
   (setq-default flymake-mode nil)
 
@@ -67,13 +68,11 @@
   (menu-bar-mode -1)            ; Disable the menu bar
   (electric-pair-mode)	      ; completes delimiters like ({["'"]})
   (show-paren-mode)
-  ; (electric-indent-mode 1)
-  ; UbuntuMonoNerdFont
+					; (electric-indent-mode 1)
+					; UbuntuMonoNerdFont
   (set-face-attribute 'default nil :font "IosevkaTermNerdFontMono" :height 140)
   (add-to-list 'default-frame-alist '(font . "IosevkaTermNerdFontMono-14"))
-  (global-set-key (kbd "M-[") 'universal-argument)
-  (run-at-time nil (* 5 60) 'recentf-save-list)
-  (add-hook find-file-hook #'recentf-save-list))
+  (global-set-key (kbd "M-[") 'universal-argument))
 
 (use-package undo-tree
   :init
@@ -101,12 +100,12 @@
   :config
   ;; instead of normal mode launch the following in respective modes
   (dolist (p '((Info-mode . emacs)
-	     (dired-mode . emacs)
-	     (compilation-mode . emacs)
-	     (help-mode . emacs)))
-  (evil-set-initial-state (car p) (cdr p)))
+	       (dired-mode . emacs)
+	       (compilation-mode . emacs)
+	       (help-mode . emacs)))
+    (evil-set-initial-state (car p) (cdr p)))
 
-  ; for using C-g to quit normal mode
+					; for using C-g to quit normal mode
   (define-key evil-insert-state-map  (kbd "C-g") #'evil-force-normal-state)
   (define-key evil-replace-state-map (kbd "C-g") #'evil-force-normal-state)
   (define-key evil-visual-state-map  (kbd "C-g") #'evil-force-normal-state)
@@ -164,7 +163,7 @@
   ;; available in the *Completions* buffer, add it to the
   ;; `completion-list-mode-map'.
   :bind (:map minibuffer-local-map
-         ("M-A" . marginalia-cycle))
+              ("M-A" . marginalia-cycle))
   ;; The :init section is always executed.
   :init
   ;; Marginalia must be actived in the :init section of use-package such that
@@ -173,7 +172,10 @@
   (marginalia-mode))
 
 (use-package consult)
-(use-package consult-flycheck)
+
+(use-package consult-flycheck
+  :commands (consult-flycheck))
+
 (use-package imenu-list)
 
 (use-package ef-themes)
@@ -221,6 +223,7 @@
   "o t" '(org-timer-set-timer :wk "org-timer"))
 
 (use-package projectile
+  :commands (projectile-find-dir projectile-find-file)
   :init
   (setq projectile-indexing-method 'hybrid)
   (setq projectile-project-search-path '("/home/azmat/Programming/Projects"))
@@ -229,15 +232,13 @@
 	   :prefix "C-c"
 	   "p" 'projectile-command-map))
 
-
 (use-package embark
+  :commands (embark-act)
   :init
   (require 'bind-key)
   (bind-key "C-," #'embark-act))
 
-
 (use-package  embark-consult)
-
 
 (use-package surround
   :bind-keymap ("M-n" . surround-keymap))
@@ -246,7 +247,6 @@
   :init
   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   (global-set-key (kbd "M-o") #'ace-window))
-
 
 (use-package corfu
   ;; Optional customizations
@@ -276,9 +276,9 @@
 (use-package kind-icon
   :ensure t
   :after corfu
-  ;:custom
-  ; (kind-icon-blend-background t)
-  ; (kind-icon-default-face 'corfu-default) ; only needed with blend-background
+					;:custom
+					; (kind-icon-blend-background t)
+					; (kind-icon-default-face 'corfu-default) ; only needed with blend-background
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
@@ -300,7 +300,6 @@
   (setq doom-modeline-support-imenu t
 	doom-modeline-buffer-file-name-style 'file-name)
   :hook (after-init . doom-modeline-mode))
-
 
 ;; setting up tree-sitter
 (require 'treesit)
@@ -336,7 +335,6 @@
 	'(("TODO" . "#FF0000")))
   (global-hl-todo-mode))
 
-
 (use-package eglot
   :ensure nil
   :general-config
@@ -365,14 +363,13 @@
   :config
   (jarchive-setup))
 
-
 ;; ;; jsonrpc dependency for dape
 ;; (use-package jsonrpc)
 ;;
 
 ;; debugger setup
 (use-package dape
-  :preface
+  ;; :preface
   ;; By default dape shares the same keybinding prefix as `gud'
   ;; If you do not want to use any prefix, set it to nil.
   ;; (setq dape-key-prefix "\C-x\C-a")
@@ -383,7 +380,7 @@
   ;; ;; Load breakpoints on startup
   ;; (after-init . dape-breakpoint-load)
 
-  :commands (dape)
+  :commands (dape dape-breakpoint-toggle)
   :config
   ;; Turn on global bindings for setting breakpoints with mouse
   (dape-breakpoint-global-mode)
@@ -408,17 +405,20 @@
   (add-hook 'dape-compile-hook 'kill-buffer)
 
   ;; Projectile users
-  (setq dape-cwd-fn 'projectile-project-root))
+  (setq dape-cwd-fn 'dape--default-cwd))
 
 ;; Enable repeat mode for more ergonomic `dape' use
 (use-package repeat
+  :commands (enlarge-window dape)
   :config
   (repeat-mode))
 
 (use-package recentf
   :ensure nil
+  :hook (find-file . recentf-save-list)
   :config
-  (recentf-mode))
+  (recentf-mode)
+  (run-at-time nil (* 5 60) 'recentf-save-list))
 
 (use-package org-superstar
   :config
@@ -453,33 +453,33 @@
 	'((sequence "TODO" "FEEDBACK" "VERIFY" "PROJECT IDEA" "|" "DONE" "SCRAPED")))
 
   (setq org-capture-templates
-      '(("t"              ; hotkey
-	 "TODO [Daily] List item" ; name
-	 entry            ; type
-	 ; heading type and title
-	 (file+headline org-default-notes-file "Daily")
-	 "* TODO %?\n %i\n")
-	("i"              ; hotkey
+	'(("t"              ; hotkey
+	   "TODO [Daily] List item" ; name
+	   entry            ; type
+					; heading type and title
+	   (file+headline org-default-notes-file "Daily")
+	   "* TODO %?\n %i\n")
+	  ("i"              ; hotkey
 	   "TODO List item with refrence" ; name
 	   entry            ; type
 	   (file+headline org-default-notes-file "Tasks")
-	 "* TODO %?\n %i\n%a \n")
+	   "* TODO %?\n %i\n%a \n")
 
-	("j"
-	 "Journal Entry"
-	 entry
-	 (file+datetree "~/Org/journal.org")
-	 "* Entered on %u\n %i%?")
-	("D"
-	 "Daily Agenda"
-	 entry
-	 (file+datetree "~/Org/day-agenda.org")
-	 "* Entered on %u\n %i%?")
-	("K"
-	 "Knowledgebase"
-	 entry
-	 (file "~/Org/Knowledgebase/to-note.org")
-	 "* %i%?"))))
+	  ("j"
+	   "Journal Entry"
+	   entry
+	   (file+datetree "~/Org/journal.org")
+	   "* Entered on %u\n %i%?")
+	  ("D"
+	   "Daily Agenda"
+	   entry
+	   (file+datetree "~/Org/day-agenda.org")
+	   "* Entered on %u\n %i%?")
+	  ("K"
+	   "Knowledgebase"
+	   entry
+	   (file "~/Org/Knowledgebase/to-note.org")
+	   "* %i%?"))))
 
 ;; dashboard
 (use-package dashboard
@@ -501,11 +501,10 @@
   :init
   (ws-butler-global-mode))
 
-
 (use-package window
   :ensure nil
   :custom
-  ; left,  top, right, bottom
+					; left,  top, right, bottom
   (window-sides-slots '(1 0 1 1))
   (display-buffer-alist
    '(
@@ -574,7 +573,7 @@
   (popper-mode +1)
   (popper-echo-mode +1)
   :config
-    (setq popper-display-control nil))
+  (setq popper-display-control nil))
 
 ;; (use-package eglot-booster
 ;;   :ensure nil
@@ -637,6 +636,21 @@
 (add-hook 'emacs-startup-hook #'my/activate-corfu-terminal)
 (put 'upcase-region 'disabled nil)
 
+(use-package apheleia
+  :config
+  (apheleia-global-mode 1))
+
+(use-package indent-bars
+  :defer t
+  :init
+  (setq
+   indent-bars-color '(highlight :face-bg t :blend 0.3)
+   indent-bars-pattern " . . . . . ." ; play with the number of dots for your usual font size
+   indent-bars-width-frac 0.1
+   indent-bars-pad-frac 0.1
+   indent-bars-display-on-blank-lines nil
+   indent-bars-prefer-character t))
+
 (use-package envrc
   :hook (after-init . envrc-global-mode))
 (custom-set-variables
@@ -646,7 +660,6 @@
  ;; If there is more than one, they won't work right.
  '(package-vc-selected-packages
    '((ultra-scroll :vc-backend Git :url "https://github.com/jdtsmith/ultra-scroll")
-     (eglot-booster :vc-backend Git :url "https://github.com/jdtsmith/eglot-booster")
      (vc-use-package :vc-backend Git :url "https://github.com/slotThe/vc-use-package"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
