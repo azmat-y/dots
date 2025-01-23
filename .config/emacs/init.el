@@ -86,7 +86,10 @@
   :hook (prog-mode . evil-mode)
   :bind (:map evil-insert-state-map
 	      ("C-n" . nil)
-	      ("C-p" . nil))
+	      ("C-p" . nil)
+	      :map
+	      evil-normal-state-map
+	      ("K" . man))
   
   :init      ;; tweak evil's configuration before loading it
   (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
@@ -96,7 +99,6 @@
   (setq evil-want-C-i-jump nil)
   (setq evil-want-C-u-scroll t)
   (setq evil-undo-system 'undo-tree)
-
   :config
   ;; instead of normal mode launch the following in respective modes
   (dolist (p '((Info-mode . emacs)
@@ -188,6 +190,7 @@
   "s"   '(:ignore t :wk "search")
   "s i" '(consult-imenu :wk "consult-imenu")
   "s r" '(consult-ripgrep :wk "consult-ripgrep")
+  "s F" '(consult-fd :wk "consult-fd")
   "s f" '(consult-flycheck :wk "consult-flycheck")
   "s k" '(az-search-knowledgebase :wk "search-knowledgebase")
   "t"   '(:ignore t :wk "toggles")
@@ -409,9 +412,7 @@
 
 ;; Enable repeat mode for more ergonomic `dape' use
 (use-package repeat
-  :commands (enlarge-window dape)
-  :config
-  (repeat-mode))
+  :commands (enlarge-window shrink-window-horizontally dape))
 
 (use-package recentf
   :ensure nil
@@ -521,11 +522,11 @@
       (window . bottom)
       (window-height 0.45))
 
-     ("\\*compilation\\*"
+     ("\\*.*compilation\\*"
       display-buffer-in-side-window
       (side . bottom)
       (window . root)
-      (window-height . 0.45))
+      (window-height . 0.40))
 
      ("\\*lsp-help\\*"
       display-buffer-in-side-window
@@ -540,18 +541,32 @@
       (window . root)
       (window-height . 0.45))
 
-     ("\*eldoc\w*"
-      ;; display-buffer-in-side-window
-      display-buffer-in-direction
-      (side . right)
-      (window . root)
-      (window-heigh . 0.40))
+     ("\\*eldoc.*\\*"
 
-     ("\\*Help\\*"
+      ;; display-buffer-in-side-window
       display-buffer-in-side-window
       (side . bottom)
       (window . root)
-      (window-height . 0.45)))))
+      (window-height . 45))
+
+     ("\\*Help.*\\*"
+      display-buffer-in-side-window
+      (side . bottom)
+      (window . root)
+      (window-height . 45))
+
+     ("\\*Python\\*"
+      display-buffer-in-side-window
+      (side . bottom)
+      (window . bottom)
+      (window-height 0.45))
+
+     ("\\*bb-asm*\\*"
+      ;; display-buffer-in-side-window
+      display-buffer-in-side-window
+      (side . right)
+      (window . root)
+      (window-width . 65)))))
 
 (use-package popper
   :ensure t ; or :straight t
@@ -559,17 +574,18 @@
          ("M-'"   . popper-cycle)
          ("C-M-'" . popper-toggle-type))
   :init
-  (setq popper-group-function #'popper-group-by-projectile)
+  (setq popper-group-function #'popper-group-by-directory)
   (setq popper-reference-buffers
         '("\\*Messages\\*"
           "Output\\*$"
           "\\*Async Shell Command\\*"
           "^\\*vterm.*\\*$"  vterm-mode  ;vterm as a popup
 	  "\\*lsp-help\\*" lsp-help-mode
-	  "\*eldoc\w*"
+  		  "\\*eldoc\\*" special-mode
 	  xref--xref-buffer-mode
-          help-mode
-          compilation-mode))
+          ;; help-mode
+          compilation-mode
+	  beardbolt--asm-mode))
   (popper-mode +1)
   (popper-echo-mode +1)
   :config
@@ -650,6 +666,11 @@
    indent-bars-pad-frac 0.1
    indent-bars-display-on-blank-lines nil
    indent-bars-prefer-character t))
+
+(use-package beardbolt
+  :ensure nil
+  :vc (:fetcher github :repo "joaotavora/beardbolt")
+  :commands (beardbolt-starter beardbolt-mode))
 
 (use-package envrc
   :hook (after-init . envrc-global-mode))
