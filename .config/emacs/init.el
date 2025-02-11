@@ -230,10 +230,8 @@
   :init
   (setq projectile-indexing-method 'hybrid)
   (setq projectile-project-search-path '("/home/azmat/Programming/Projects"))
-  :general-config
-  (:keymap 'projectile-mode-map
-	   :prefix "C-c"
-	   "p" 'projectile-command-map))
+  :bind
+  ("C-c p" . projectile-command-map))
 
 (use-package embark
   :commands (embark-act)
@@ -314,12 +312,15 @@
 				   (python "https://github.com/tree-sitter/tree-sitter-python")
 				   (c "https://github.com/tree-sitter/tree-sitter-c")
 				   (java "https://github.com/tree-sitter/tree-sitter-java")
+				   (bash "https://github.com/tree-sitter/tree-sitter-bash")
 				   (javascript "https://github.com/tree-sitter/tree-sitter-javascript")))
   (major-mode-remap-alist '((c++-mode . c++-ts-mode)
 			    (python-mode . python-ts-mode)
 			    (c-mode . c-ts-mode)
 			    (java-mode . java-ts-mode)
 			    (js-mode . js-ts-mode)
+			    (bash-mode . bash-ts-mode)
+			    (sh-mode . bash-ts-mode)
 			    (javascript-mode . js-ts-mode)))
   (treesit-font-lock-level 4))
 
@@ -339,7 +340,16 @@
   (global-hl-todo-mode))
 
 (use-package eglot
-  :ensure nil
+  :custom
+  (fset #'jsonrpc--log-event #'ignore)
+  (eglot-events-buffer-size 0)
+  (eglot-sync-connect nil)
+  (eglot-connect-timeout nil)
+  (eglot-autoshutdown t)
+  (eglot-send-changes-idle-time 3)
+  (flymake-no-changes-timeout 5)
+  (eldoc-echo-area-use-multiline-p nil)
+  (setq eglot-ignored-server-capabilities '( :documentHighlightProvider))
   :general-config
   (:keymaps 'eglot-mode-map :prefix "C-c l"
 	    "r" 'eglot-rename
@@ -352,12 +362,17 @@
 	  c++-ts-mode
 	  python-ts-mode
 	  java-ts-mode)  . eglot-ensure)
-  ;; :custom
-  ;; (eglot-ignored-server)
   :init
+  (add-to-list 'eglot-server-programs
+               '((python-mode python-ts-mode)
+		 "basedpyright-langserver" "--stdio"))
   ;; Option 1: Specify explicitly to use Orderless for Eglot
   (setq completion-category-overrides '((eglot (styles orderless))
-					(eglot-capf (styles orderless)))))
+					(eglot-capf (styles orderless))))
+  :config
+  (add-to-list 'eglot-server-programs
+               '((python-mode python-ts-mode)
+		 "basedpyright-langserver" "--stdio")))
 
 
 ;; java setup https://andreyor.st/posts/2023-09-09-migrating-from-lsp-mode-to-eglot/
@@ -412,7 +427,8 @@
 
 ;; Enable repeat mode for more ergonomic `dape' use
 (use-package repeat
-  :commands (enlarge-window shrink-window-horizontally dape))
+  :commands (enlarge-window shrink-window-horizontally dape)
+  :hook (dape-start . repeat-mode))
 
 (use-package recentf
   :ensure nil
@@ -474,8 +490,13 @@
 	  ("D"
 	   "Daily Agenda"
 	   entry
-	   (file+datetree "~/Org/day-agenda.org")
+	   (file "~/Org/day-agenda.org")
 	   "* Entered on %u\n %i%?")
+	  ("N"
+	   "Next Day Agenda"
+	   entry
+	   (file "~/Org/day-agenda.org")
+	   "* TODO Daily Tasks for the day [/]\n SCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+1d\"))\n %i%?")
 	  ("K"
 	   "Knowledgebase"
 	   entry
@@ -591,11 +612,11 @@
   :config
   (setq popper-display-control nil))
 
-;; (use-package eglot-booster
-;;   :ensure nil
-;;   :vc (:fetcher github :repo  "jdtsmith/eglot-booster")
-;;   :after eglot
-;;   :config (eglot-booster-mode))
+(use-package eglot-booster
+  :ensure nil
+  :vc (:fetcher github :repo  "jdtsmith/eglot-booster")
+  :after eglot
+  :config (eglot-booster-mode))
 
 (use-package flycheck-eglot
   :after (flycheck eglot)
@@ -642,9 +663,6 @@
         scroll-margin 0)
   :config
   (ultra-scroll-mode 1))
-
-(use-package org-modern
-  :hook (org-mode . org-modern-mode))
 
 ;; keep customize edits separate
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
