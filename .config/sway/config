@@ -242,11 +242,14 @@ include '$(/usr/libexec/sway/layered-include "/usr/share/sway/config.d/*.conf" "
 # launch programs
 exec swaync
 
+# For some reason dnd remains on by default, so disable it
+exec_always swaync-client -df
+
 # custom shortcuts
 bindsym Ctrl+Shift+k exec playerctl play-pause
 bindsym Ctrl+Shift+j exec playerctl previous
 bindsym Ctrl+Shift+l exec playerctl next
-# bindsym Mod1+q exec $HOME/.local/bin/powercycle.sh
+bindsym $mod+q exec $HOME/.local/bin/powercycle.sh
 bindsym Ctrl+Shift+t exec flameshot gui
 bindsym Ctrl+Shift+c exec flameshot full
 bindsym $mod+Shift+n exec swaync-client -t -sw

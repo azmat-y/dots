@@ -116,6 +116,3 @@ source <(fzf --zsh)
 
 # subword mode for navigating line
 WORDCHARS=''
-
-# For some reason dnd remains on by default, so disable it
-swaync-client -df
