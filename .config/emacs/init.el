@@ -239,7 +239,7 @@
   (require 'bind-key)
   (bind-key "C-," #'embark-act))
 
-(use-package  embark-consult)
+(use-package  embark-consult :defer t)
 
 (use-package surround
   :bind-keymap ("M-n" . surround-keymap))
@@ -544,10 +544,10 @@
       (window-height 0.45))
 
      ("\\*.*compilation\\*"
-      display-buffer-in-side-window
-      (side . bottom)
+      display-buffer-in-direction
+      (direction . bottom)
       (window . root)
-      (window-height . 0.40))
+      (window-height . 0.50))
 
      ("\\*lsp-help\\*"
       display-buffer-in-side-window
@@ -602,7 +602,7 @@
           "\\*Async Shell Command\\*"
           "^\\*vterm.*\\*$"  vterm-mode  ;vterm as a popup
 	  "\\*lsp-help\\*" lsp-help-mode
-  		  "\\*eldoc\\*" special-mode
+  	  "\\*eldoc\\*" special-mode
 	  xref--xref-buffer-mode
           ;; help-mode
           compilation-mode
@@ -689,6 +689,11 @@
   :ensure nil
   :vc (:fetcher github :repo "joaotavora/beardbolt")
   :commands (beardbolt-starter beardbolt-mode))
+
+(use-package flycheck-clang-tidy
+  :after flycheck
+  :hook
+  (flycheck-mode . flycheck-clang-tidy-setup))
 
 (use-package envrc
   :hook (after-init . envrc-global-mode))
