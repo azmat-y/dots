@@ -107,7 +107,7 @@ autoload -Uz compinit && compinit
 
 # when in distrobox
 if (env | grep -Fqi 'DISTROBOX'); then
-        PS1='\u@\h:\w\$'
+        PS1="\u@\h:\w\$"
 fi
 
 # gitignore command line tool

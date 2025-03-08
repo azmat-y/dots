@@ -36,7 +36,6 @@
       "battery",
       "backlight",
     "custom/gammastep",
-    "network",
         "tray",
 	"custom/notificaton"
     ],
