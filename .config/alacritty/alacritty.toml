@@ -1,0 +1,31 @@
+
+### This really should be handeled by chsh or in /etc/passwd directly
+### no sense in doing it here
+# [shell]
+# program = "/bin/zsh"
+
+[general]
+import = ["~/.config/alacritty/themes/themes/ayu_dark.toml"]
+
+[font]
+size=15
+normal = { family = "IosevkaTermNerdFont"}
+
+[mouse]
+hide_when_typing = true
+
+[window]
+blur = true
+
+[[hints.enabled]]
+command         = "xdg-open" # On Linux/BSD
+hyperlinks      = true
+post_processing = true
+persist         = false
+mouse.enabled   = true
+binding         = { key = "U", mods = "Control|Shift" }
+regex           = "(ipfs:|ipns:|magnet:|mailto:|gemini://|go‐ pher://|https://|http://|news:|file:|git://|ssh:|ftp://)[^\u0000-\u001F\u007F-\u009F<>\"\\s{-}\\^⟨⟩`]+"
+
+[cursor]
+style = "block"
+vi_mode_style = "Block"
