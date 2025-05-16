@@ -23,6 +23,7 @@
         "sway/mode",
 	"custom/rpm",
 	"idle_inhibitor",
+	"custom/powerprofile"
     ],
      "modules-center": [
 	   "clock"
@@ -151,7 +152,8 @@
 
 
     "clock": {
-        "format": "{:%H:%M}  ",
+        "format": "{:%H:%M:%S}  ",
+	"interval": 1,
         "format-alt": "{:%A, %B %d, %Y (%R)} ",
         "tooltip-format": "<tt><small>{calendar}</small></tt>",
         "calendar": {
@@ -185,6 +187,14 @@
     "format": " {} ",
     "interval": 5,
     "exec": "$HOME/.config/waybar/custom_modules/rpm.sh"
+    },
+
+    "custom/powerprofile": {
+    "format": " {}",
+    "exec": "$HOME/.config/waybar/custom_modules/powerprofile_indicator.sh",
+    "interval": 5,
+    "return-type": "json",
+    "tooltip": false
     },
 
     "backlight": {

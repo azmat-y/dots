@@ -56,6 +56,7 @@
   (setq compilation-max-output-line-length nil)
   (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
   (add-hook 'prog-mode-hook #'indent-bars-mode)
+  (add-hook 'after-init-hook #'org-agenda-list)
   (setq-default dired-listing-switches "-lha")
   (setq-default flymake-mode nil)
 
@@ -104,7 +105,8 @@
   (dolist (p '((Info-mode . emacs)
 	       (dired-mode . emacs)
 	       (compilation-mode . emacs)
-	       (help-mode . emacs)))
+	       (help-mode . emacs)
+	       (xref--xref-buffer-mode . emacs)))
     (evil-set-initial-state (car p) (cdr p)))
 
 					; for using C-g to quit normal mode
@@ -200,7 +202,7 @@
   "t v" '(vterm :wk "vterm")
   "b "  '(:ignore t :wk "buffer")
   "b i" '(ibuffer :wk "ibuffer")
-  "b k" '(kill-this-buffer :wk "kill-buffer")
+  "b k" '(kill-current-buffer :wk "kill-buffer")
   "b l" '(previous-buffer :wk "previous-buffer")
   "b n" '(next-buffer :wk "next-buffer")
   "f  " '(:ignore t :wk "files")
@@ -361,11 +363,9 @@
   :hook ((c-ts-mode
 	  c++-ts-mode
 	  python-ts-mode
-	  java-ts-mode)  . eglot-ensure)
+	  java-ts-mode
+	  cmake-mode)  . eglot-ensure)
   :init
-  (add-to-list 'eglot-server-programs
-               '((python-mode python-ts-mode)
-		 "basedpyright-langserver" "--stdio"))
   ;; Option 1: Specify explicitly to use Orderless for Eglot
   (setq completion-category-overrides '((eglot (styles orderless))
 					(eglot-capf (styles orderless))))
@@ -387,18 +387,19 @@
 
 ;; debugger setup
 (use-package dape
-  ;; :preface
+  :preface
+
   ;; By default dape shares the same keybinding prefix as `gud'
   ;; If you do not want to use any prefix, set it to nil.
-  ;; (setq dape-key-prefix "\C-x\C-a")
+  (setq dape-key-prefix "\C-x\C-a")
 
   ;; :hook
   ;; ;; Save breakpoints on quit
   ;; (kill-emacs . dape-breakpoint-save)
   ;; ;; Load breakpoints on startup
   ;; (after-init . dape-breakpoint-load)
-
-  :commands (dape dape-breakpoint-toggle)
+  :defer t
+  ;; :commands (dape dape-breakpoint-toggle)
   :config
   ;; Turn on global bindings for setting breakpoints with mouse
   (dape-breakpoint-global-mode)
@@ -432,9 +433,10 @@
 
 (use-package recentf
   :ensure nil
-  :hook (find-file . recentf-save-list)
-  :config
-  (recentf-mode)
+  :hook (after-init . recentf-mode)
+  :init
+  (setq recentf-max-saved-items 100)
+  (setq recentf-auto-cleanup 'never)
   (run-at-time nil (* 5 60) 'recentf-save-list))
 
 (use-package org-superstar
@@ -502,21 +504,6 @@
 	   entry
 	   (file "~/Org/Knowledgebase/to-note.org")
 	   "* %i%?"))))
-
-;; dashboard
-(use-package dashboard
-  :init
-  (setq dashboard-startup-banner 'logo
-	dashboard-week-agenda t
-	dashboard-items '((agenda . 5)
-			  (bookmarks . 3)
-			  (recents . 3)
-			  (projects . 3)))
-  :config
-  (add-hook 'after-init-hook #'dashboard-insert-startupify-lists)
-  (add-hook 'after-init-hook #'dashboard-initialize)
-  (dashboard-setup-startup-hook))
-
 
 ;; delete trailing whitespace
 (use-package ws-butler
@@ -629,6 +616,9 @@
   :hook
   ((dired-mode . dired-hide-details-mode)
    (dired-mode . hl-line-mode))
+  :init
+  (add-to-list 'dired-compress-file-alist '("\\.zip\\'" . "zip -r %o %i"))
+  (setq dired-compress-directory-default-suffix ".zip")
   :config
   (setq dired-recursive-copies 'always)
   (setq dired-recursive-deletes 'always)
@@ -695,6 +685,17 @@
   :hook
   (flycheck-mode . flycheck-clang-tidy-setup))
 
+(use-package dired-rsync
+  :bind (:map dired-mode-map
+              ("r" . dired-rsync)))
+
+(use-package org-download
+  :hook (org-mode . org-download-enable)
+  :init
+  (setq-default org-download-image-dir "~/Screenshots/Org/")
+  :bind (:map org-mode-map
+	      ("C-c v" . org-download-clipboard)))
+
 (use-package envrc
   :hook (after-init . envrc-global-mode))
 (custom-set-variables
@@ -711,3 +712,4 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(put 'narrow-to-region 'disabled nil)

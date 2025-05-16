@@ -221,3 +221,21 @@
     border-color: #c9545d;
     color: #c9545d;
 }
+
+* {
+    font-family: IosevkaTermNerdFont;
+}
+/* This is the format: #custom-[module name].[class] */
+
+#custom-powerprofile.performance {
+    color: #00ff00;  /* Green */
+}
+#custom-powerprofile.balanced {
+    color: #3399ff;  /* Blue */
+}
+#custom-powerprofile.powersave {
+    color: #ffcc00;  /* Yellow */
+}
+#custom-powerprofile.unknown {
+    color: #ffffff;
+}
