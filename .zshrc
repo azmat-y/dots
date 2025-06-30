@@ -116,3 +116,4 @@ source <(fzf --zsh)
 
 # subword mode for navigating line
 WORDCHARS=''
+export XDG_CONFIG_HOME="/home/azmat/.config"
