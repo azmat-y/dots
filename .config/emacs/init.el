@@ -1,12 +1,14 @@
 ;; -*- lexical-binding: t -*-
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("elpa" . "https://elpa.gnu.org/packages/")))
+                         ("elpa" . "https://elpa.gnu.org/packages/")
+			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
 ;; (package-initialize)
 
 ;; load files
 (load (expand-file-name "~/.config/emacs/env.el"))
+(load (expand-file-name "~/.config/emacs/utility.el"))
 
 ;; my functions efs, ..
 (defun efs/display-startup-time ()
@@ -17,9 +19,9 @@
                     (time-subtract after-init-time before-init-time)))
            gcs-done))
 
-(defun my/activate-corfu-terminal ()
-  (unless (display-graphic-p)
-    (corfu-terminal-mode +1)))
+(defun az/ansi-color-apply-on-region (begin end)
+  (interactive "r")
+  (ansi-color-apply-on-region begin end t))
 
 (defun az-search-knowledgebase ()
   "Search the knowledgebase using ripgrep using consult"
@@ -54,6 +56,8 @@
   (setq compilation-scroll-output t)
   (setq compilation-auto-jump-to-next t)
   (setq compilation-max-output-line-length nil)
+  (setq desktop-dirname "~/.config/emacs/desktop/"
+      desktop-path (list desktop-dirname))
   (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
   (add-hook 'prog-mode-hook #'indent-bars-mode)
   (add-hook 'after-init-hook #'org-agenda-list)
@@ -106,6 +110,7 @@
 	       (dired-mode . emacs)
 	       (compilation-mode . emacs)
 	       (help-mode . emacs)
+	       (eww-mode . emacs)
 	       (xref--xref-buffer-mode . emacs)))
     (evil-set-initial-state (car p) (cdr p)))
 
@@ -221,18 +226,20 @@
   ;; "l e" '(lsp-treemacs-errors-list :wk "errors")
   ;; "l s" '(consult-lsp-file-symbols :wk "lsp-file-symbols")
   "c c" '(compile :wk "compile")
+  "c r" '(recompile :wk "recompile")
   "o  " '(:ignore t :wk "org")
   "o c" '(org-capture :wk "org-capture")
   "o f" '(org-open-at-point :wk "org-open-at-point")
   "o a" '(org-agenda :wk "org-agenda")
-  "o t" '(org-timer-set-timer :wk "org-timer"))
+  "o t" '(org-timer-set-timer :wk "org-timer")
+  "o s" '(az/open-temp-org-file :wk "scratchpad"))
 
 (use-package projectile
   :commands (projectile-find-dir projectile-find-file)
   :init
   (setq projectile-indexing-method 'hybrid)
   (setq projectile-project-search-path '("/home/azmat/Programming/Projects"))
-  :bind
+  :bind-keymap
   ("C-c p" . projectile-command-map))
 
 (use-package embark
@@ -253,6 +260,8 @@
 
 (use-package corfu
   ;; Optional customizations
+  :hook
+  (prog-mode . corfu-mode)
   :custom
   (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
   (corfu-auto t)                 ;; Enable auto completion
@@ -270,11 +279,14 @@
 	      ("TAB" . corfu-insert)
 	      ("RET" . corfu-insert)
 	      ("C-n" . corfu-next)
-	      ("C-p" . corfu-previous))
-  :init
-  (global-corfu-mode))
+	      ("C-p" . corfu-previous)))
 
-;; (use-package corfu-terminal)
+(use-package corfu-terminal
+  :if (not (display-graphic-p))
+  :after corfu
+  :ensure nil
+  :hook (prog-mode . corfu-terminal-mode)
+  :vc (:fetcher codeberg :repo "akib/emacs-corfu-terminal"))
 
 (use-package kind-icon
   :ensure t
@@ -335,14 +347,15 @@
 (use-package flycheck
   :hook (after-init . global-flycheck-mode))
 
-(use-package hl-todo
-  :init
-  (setq hl-todo-keyword-faces
-	'(("TODO" . "#FF0000")))
-  (global-hl-todo-mode))
+;; (use-package hl-todo
+;;   :init
+;;   (setq hl-todo-keyword-faces
+;; 	'(("TODO" . "#FF0000")))
+;;   (global-hl-todo-mode))
 
 (use-package eglot
   :custom
+  (eglot-autoreconnect 5)
   (fset #'jsonrpc--log-event #'ignore)
   (eglot-events-buffer-size 0)
   (eglot-sync-connect nil)
@@ -350,8 +363,11 @@
   (eglot-autoshutdown t)
   (eglot-send-changes-idle-time 3)
   (flymake-no-changes-timeout 5)
-  (eldoc-echo-area-use-multiline-p nil)
-  (setq eglot-ignored-server-capabilities '( :documentHighlightProvider))
+  (setq eglot-ignored-server-capabilities '( :documentHighlightProvider
+					     :hoverProvider
+					     :documentFormattingProvider
+					     :documentOnTypeFormattingProvider
+					     :documentRangeFormattingProvider))
   :general-config
   (:keymaps 'eglot-mode-map :prefix "C-c l"
 	    "r" 'eglot-rename
@@ -370,10 +386,43 @@
   (setq completion-category-overrides '((eglot (styles orderless))
 					(eglot-capf (styles orderless))))
   :config
+  (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
   (add-to-list 'eglot-server-programs
-               '((python-mode python-ts-mode)
-		 "basedpyright-langserver" "--stdio")))
+	       '((python-mode python-ts-mode)
+	         . ("basedpyright-langserver" "--stdio"))
+	       '((c-ts-mode c++-ts-mode c-mode c++-mode)
+                   . ("clangd"
+                      "-j=3"
+                      "--log=verbose"
+                      "--background-index"
+                      "--clang-tidy"
+                      "--completion-style=detailed")))
+  (setq-default
+   eglot-workspace-configuration
+   '(:basedpyright (
+		    :typeCheckingMode "off"))))
 
+(use-package eglot-hierarchy
+  :ensure nil
+  :after eglot
+  :vc (:fetcher github :repo "dolmens/eglot-hierarchy"))
+
+;; (use-package lsp-bridge
+;;   :ensure nil
+;;   :vc (:fetcher github :repo "manateelazycat/lsp-bridge")
+;;   :custom
+;;   (lsp-bridge-user-langserver-dir "/home/azmat/.config/emacs/lsp-bridge-server-config")
+;;   :hook (prog-mode . lsp-bridge-mode)
+;;   :init
+;;   (add-to-list 'evil-goto-definition-functions #'lsp-bridge-find-def)
+;;   :bind
+;;   (:general-config
+;;      (:keymap lsp-bridge-mode-map :prefix "C-c"
+;; 	("l r" . lsp-bridge-rename)
+;; 	("l a" . lsp-bridge-code-action)
+;; 	("l d" . lsp-bridge-find-def)
+;; 	("l i" . lsp-bridge-find-impl)
+;; 	("l h" . lsp-bridge-popup-documentation))))
 
 ;; java setup https://andreyor.st/posts/2023-09-09-migrating-from-lsp-mode-to-eglot/
 (use-package jarchive
@@ -436,8 +485,7 @@
   :hook (after-init . recentf-mode)
   :init
   (setq recentf-max-saved-items 100)
-  (setq recentf-auto-cleanup 'never)
-  (run-at-time nil (* 5 60) 'recentf-save-list))
+  (setq recentf-auto-cleanup 'never))
 
 (use-package org-superstar
   :config
@@ -450,6 +498,8 @@
 (use-package org-mode
   :ensure nil
   :hook (org-mode . auto-fill-mode)
+  :bind (:map org-mode-map
+	      ("C-c o " . az/org-create-backlog-heading-and-link))
   :init
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)
@@ -468,7 +518,7 @@
   (setq org-startup-indented t)
   (setq org-clock-sound t)
   (setq org-agenda-files '("~/Org/agenda.org"))
-  (setq org-todo-keywords
+  (setq-default org-todo-keywords
 	'((sequence "TODO" "FEEDBACK" "VERIFY" "PROJECT IDEA" "|" "DONE" "SCRAPED")))
 
   (setq org-capture-templates
@@ -525,16 +575,18 @@
      ;; Yes there is a lot of repition here I could not get `(,(rx))
      ;; expression to work for me
      ("\\*vterm\\*"
-      display-buffer-in-side-window
-      (side . bottom)
-      (window . bottom)
-      (window-height 0.45))
+      display-buffer-same-window)
 
-     ("\\*.*compilation\\*"
-      display-buffer-in-direction
-      (direction . bottom)
-      (window . root)
-      (window-height . 0.50))
+     ("\\*Async Shell Command\\*"
+      display-buffer-same-window)
+
+     ("\\*compilation\\*"
+      display-buffer-same-window
+      ;; display-buffer-in-direction
+      ;; (direction . bottom)
+      ;; (window . root)
+      ;; (window-height . 0.50)
+      ))
 
      ("\\*lsp-help\\*"
       display-buffer-in-side-window
@@ -566,15 +618,14 @@
      ("\\*Python\\*"
       display-buffer-in-side-window
       (side . bottom)
-      (window . bottom)
+      (window . root)
       (window-height 0.45))
 
-     ("\\*bb-asm*\\*"
-      ;; display-buffer-in-side-window
+     ("\\*bb-asm\\*"
       display-buffer-in-side-window
       (side . right)
       (window . root)
-      (window-width . 65)))))
+      (window-width . 65))))
 
 (use-package popper
   :ensure t ; or :straight t
@@ -586,10 +637,10 @@
   (setq popper-reference-buffers
         '("\\*Messages\\*"
           "Output\\*$"
-          "\\*Async Shell Command\\*"
-          "^\\*vterm.*\\*$"  vterm-mode  ;vterm as a popup
+	  "\\*Async Shell Command\\*"
+	  ;; "^\\*vterm.*\\*$"  vterm-mode  ;vterm as a popup
 	  "\\*lsp-help\\*" lsp-help-mode
-  	  "\\*eldoc\\*" special-mode
+  		  "\\*eldoc\\*" special-mode
 	  xref--xref-buffer-mode
           ;; help-mode
           compilation-mode
@@ -630,13 +681,6 @@
   :config
   (global-anzu-mode))
 
-(use-package casual-suite
-  :bind (:map
-	 calc-mode-map
-	 ("C-o" . casual-calc-tmenu)
-	 :map Info-mode-map
-	 ("C-o" . casual-info-tmenu)))
-
 (use-package slime
   :defer t
   :hook (common-lisp-mode . slime)
@@ -657,12 +701,17 @@
 ;; keep customize edits separate
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (add-hook 'emacs-startup-hook #'efs/display-startup-time)
-(add-hook 'emacs-startup-hook #'my/activate-corfu-terminal)
 (put 'upcase-region 'disabled nil)
 
 (use-package apheleia
   :config
-  (apheleia-global-mode 1))
+  (setf (alist-get 'clang-format apheleia-formatters)
+	'("clang-format"
+	  "-style=file"
+	  "-assume-filename"
+	  (or (apheleia-formatters-local-buffer-file-name)
+	      (apheleia-formatters-mode-extension) ".c")))
+  (apheleia-global-mode t))
 
 (use-package indent-bars
   :defer t
@@ -696,6 +745,10 @@
   :bind (:map org-mode-map
 	      ("C-c v" . org-download-clipboard)))
 
+(use-package bookmark
+  :ensure nil
+  :bind ("C-x r b" . consult-bookmark))
+
 (use-package envrc
   :hook (after-init . envrc-global-mode))
 (custom-set-variables
@@ -704,8 +757,8 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-vc-selected-packages
-   '((ultra-scroll :vc-backend Git :url "https://github.com/jdtsmith/ultra-scroll")
-     (vc-use-package :vc-backend Git :url "https://github.com/slotThe/vc-use-package"))))
+   '((lsp-bridge :vc-backend Git :url
+		 "https://github.com/manateelazycat/lsp-bridge"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
