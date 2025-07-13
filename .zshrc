@@ -42,9 +42,9 @@ alias off='systemctl poweroff'
 alias bat0='upower --enumerate | rg battery | xargs upower -i' #Battery report command
 
 # syntax highlighting
-source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /home/azmat/.zshplugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 # auto suggestion
-source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /home/azmat/.zshplugins/zsh-autosuggestions/zsh-autosuggestions.zsh
  
 # dotfile bare repo
 alias dotgit='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
@@ -77,10 +77,7 @@ eval "$(direnv hook zsh)"
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 # init ohmyposh
 # install homebrew from there install ohmyposh
-eval "$(
-oh-my-posh init zsh --config \
-	  /home/azmat/.config/ohmyposh/zen.toml 
-)"
+eval "$(oh-my-posh init zsh --config /home/azmat/.config/ohmyposh/powerlevel10k_lean.omp.json)"
 
 # man setting
 export MAN_POSIXLY_CORRECT=1
