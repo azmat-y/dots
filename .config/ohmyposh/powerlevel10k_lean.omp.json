@@ -28,12 +28,6 @@
           "type": "path"
         },
         {
-          "foreground": "#FFE700",
-          "style": "plain",
-          "template": "{{ .HEAD }} ",
-          "type": "git"
-        },
-        {
           "foreground": "#43D426",
           "style": "plain",
           "template": "\n\u276f ",

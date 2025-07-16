@@ -5,10 +5,11 @@
 			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
 ;; (package-initialize)
+;; (package-refresh-contents)
 
 ;; load files
-(load (expand-file-name "~/.config/emacs/env.el"))
-(load (expand-file-name "~/.config/emacs/utility.el"))
+(load (expand-file-name "~/.emacs.d/env.el"))
+(load (expand-file-name "~/.emacs.d/utility.el"))
 
 ;; my functions efs, ..
 (defun efs/display-startup-time ()
@@ -35,53 +36,10 @@
        (require 'vc-use-package))
 
 ;; (unless package-archive-contents (package-refresh-contents t))
-(use-package emacs
-  :ensure nil
-  :hook (prog-mode . display-line-numbers-mode)
-  :init
-  (setq inhibit-startup-message t)
-  (setq initial-scratch-message nil)
-  (setq warning-minimum-level :emergency)
-  (setq gc-cons-threshold 100000000) ; allocates more 20MB for emacs than default 0.76MB so that GC doesn't run as often
-  (setq sentence-end-double-space nil)
-  (setq read-process-output-max (* 1024 1024)) ;; 1mb Increase the amount of data which Emacs reads from the process
-  (setq create-lockfiles nil)
-  (setq backup-directory-alist  '((".*" . "/home/azmat/.emacs_backups")))
-  (setq auth-sources '("~/.authinfo.gpg"))
-  (setq eldoc-echo-area-use-multiline-p nil)
-  (setq isearch-lazy-count t)
-  (setq make-backup-files nil)
-  (setq package-install-upgrade-built-in t)
-  (setq use-package-compute-statistics t)
-  (setq compilation-scroll-output t)
-  (setq compilation-auto-jump-to-next t)
-  (setq compilation-max-output-line-length nil)
-  (setq desktop-dirname "~/.config/emacs/desktop/"
-      desktop-path (list desktop-dirname))
-  (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
-  (add-hook 'prog-mode-hook #'indent-bars-mode)
-  (add-hook 'after-init-hook #'org-agenda-list)
-  (setq-default dired-listing-switches "-lha")
-  (setq-default flymake-mode nil)
-
-  (fset 'yes-or-no-p 'y-or-n-p)
-  (scroll-bar-mode -1)
-  (tool-bar-mode -1)          ; Disable the toolbar
-  (tooltip-mode -1)           ; Disable tooltips
-  (global-visual-line-mode 1)
-  ;; (set-fringe-mode 5)
-  (menu-bar-mode -1)            ; Disable the menu bar
-  (electric-pair-mode)	      ; completes delimiters like ({["'"]})
-  (show-paren-mode)
-					; (electric-indent-mode 1)
-					; UbuntuMonoNerdFont
-  (set-face-attribute 'default nil :font "IosevkaTermNerdFontMono" :height 140)
-  (add-to-list 'default-frame-alist '(font . "IosevkaTermNerdFontMono-14"))
-  (global-set-key (kbd "M-[") 'universal-argument))
 
 (use-package undo-tree
   :init
-  (setq undo-tree-history-directory-alist '(("." . "~/.config/emacs/undo")))
+  (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
   (setq undo-tree-auto-save-history t)
   :config
   (global-undo-tree-mode))
@@ -180,18 +138,19 @@
   ;; package.
   (marginalia-mode))
 
-(use-package consult)
+(use-package consult :defer t)
 
 (use-package consult-flycheck
   :commands (consult-flycheck))
 
-(use-package imenu-list)
+(use-package imenu-list :defer t)
 
 (use-package ef-themes)
 (use-package adwaita-dark-theme)
 (use-package doom-themes)
 
-(consult-theme (intern (getenv "emacs_theme")))
+;; (consult-theme (intern (getenv "emacs_theme")))
+(load-theme az-selected-theme t)
 
 (nvmap :states '(normal insert visual emacs) :keymaps 'override :prefix "SPC" :global-prefix "M-SPC"
   "s"   '(:ignore t :wk "search")
@@ -391,12 +350,12 @@
 	       '((python-mode python-ts-mode)
 	         . ("basedpyright-langserver" "--stdio"))
 	       '((c-ts-mode c++-ts-mode c-mode c++-mode)
-                   . ("clangd"
-                      "-j=3"
-                      "--log=verbose"
-                      "--background-index"
-                      "--clang-tidy"
-                      "--completion-style=detailed")))
+                 . ("clangd"
+                    "-j=3"
+                    "--log=verbose"
+                    "--background-index"
+                    "--clang-tidy"
+                    "--completion-style=detailed")))
   (setq-default
    eglot-workspace-configuration
    '(:basedpyright (
@@ -411,7 +370,7 @@
 ;;   :ensure nil
 ;;   :vc (:fetcher github :repo "manateelazycat/lsp-bridge")
 ;;   :custom
-;;   (lsp-bridge-user-langserver-dir "/home/azmat/.config/emacs/lsp-bridge-server-config")
+;;   (lsp-bridge-user-langserver-dir "/home/azmat/.emacs.d/lsp-bridge-server-config")
 ;;   :hook (prog-mode . lsp-bridge-mode)
 ;;   :init
 ;;   (add-to-list 'evil-goto-definition-functions #'lsp-bridge-find-def)
@@ -519,7 +478,7 @@
   (setq org-clock-sound t)
   (setq org-agenda-files '("~/Org/agenda.org"))
   (setq-default org-todo-keywords
-	'((sequence "TODO" "FEEDBACK" "VERIFY" "PROJECT IDEA" "|" "DONE" "SCRAPED")))
+		'((sequence "TODO" "FEEDBACK" "VERIFY" "PROJECT IDEA" "|" "DONE" "SCRAPED")))
 
   (setq org-capture-templates
 	'(("t"              ; hotkey
@@ -588,44 +547,44 @@
       ;; (window-height . 0.50)
       ))
 
-     ("\\*lsp-help\\*"
-      display-buffer-in-side-window
-      (side . right)
-      (window . root)
-      (window-width . 60))
+   ("\\*lsp-help\\*"
+    display-buffer-in-side-window
+    (side . right)
+    (window . root)
+    (window-width . 60))
 
 
-     ("\\*Occur\\*"
-      display-buffer-in-direction
-      (direction . bottom)
-      (window . root)
-      (window-height . 0.45))
+   ("\\*Occur\\*"
+    display-buffer-in-direction
+    (direction . bottom)
+    (window . root)
+    (window-height . 0.45))
 
-     ("\\*eldoc.*\\*"
+   ("\\*eldoc.*\\*"
 
-      ;; display-buffer-in-side-window
-      display-buffer-in-side-window
-      (side . bottom)
-      (window . root)
-      (window-height . 45))
+    ;; display-buffer-in-side-window
+    display-buffer-in-side-window
+    (side . bottom)
+    (window . root)
+    (window-height . 45))
 
-     ("\\*Help.*\\*"
-      display-buffer-in-side-window
-      (side . bottom)
-      (window . root)
-      (window-height . 45))
+   ("\\*Help.*\\*"
+    display-buffer-in-side-window
+    (side . bottom)
+    (window . root)
+    (window-height . 45))
 
-     ("\\*Python\\*"
-      display-buffer-in-side-window
-      (side . bottom)
-      (window . root)
-      (window-height 0.45))
+   ("\\*Python\\*"
+    display-buffer-in-side-window
+    (side . bottom)
+    (window . root)
+    (window-height 0.45))
 
-     ("\\*bb-asm\\*"
-      display-buffer-in-side-window
-      (side . right)
-      (window . root)
-      (window-width . 65))))
+   ("\\*bb-asm\\*"
+    display-buffer-in-side-window
+    (side . right)
+    (window . root)
+    (window-width . 65))))
 
 (use-package popper
   :ensure t ; or :straight t
@@ -640,7 +599,7 @@
 	  "\\*Async Shell Command\\*"
 	  ;; "^\\*vterm.*\\*$"  vterm-mode  ;vterm as a popup
 	  "\\*lsp-help\\*" lsp-help-mode
-  		  "\\*eldoc\\*" special-mode
+  	  "\\*eldoc\\*" special-mode
 	  xref--xref-buffer-mode
           ;; help-mode
           compilation-mode
@@ -690,6 +649,7 @@
   (load (expand-file-name "~/.quicklisp/slime-helper.el")))
 
 (use-package ultra-scroll
+  :defer t
   :ensure nil
   :vc (:fetcher github :repo  "jdtsmith/ultra-scroll")
   :init
@@ -713,16 +673,16 @@
 	      (apheleia-formatters-mode-extension) ".c")))
   (apheleia-global-mode t))
 
-(use-package indent-bars
-  :defer t
-  :init
-  (setq
-   indent-bars-color '(highlight :face-bg t :blend 0.3)
-   indent-bars-pattern " . . . . . ." ; play with the number of dots for your usual font size
-   indent-bars-width-frac 0.1
-   indent-bars-pad-frac 0.1
-   indent-bars-display-on-blank-lines nil
-   indent-bars-prefer-character t))
+;; (use-package indent-bars
+;;   :defer t
+;;   :init
+;;   (setq
+;;    indent-bars-color '(highlight :face-bg t :blend 0.3)
+;;    indent-bars-pattern " . . . . . ." ; play with the number of dots for your usual font size
+;;    indent-bars-width-frac 0.1
+;;    indent-bars-pad-frac 0.1
+;;    indent-bars-display-on-blank-lines nil
+;;    indent-bars-prefer-character t))
 
 (use-package beardbolt
   :ensure nil
@@ -749,16 +709,63 @@
   :ensure nil
   :bind ("C-x r b" . consult-bookmark))
 
+(use-package emacs
+  :ensure nil
+  :hook (prog-mode . display-line-numbers-mode)
+  :init
+  (setq inhibit-startup-message t)
+  (setq initial-scratch-message nil)
+  (setq warning-minimum-level :emergency)
+  (setq gc-cons-threshold 100000000) ; allocates more 20MB for emacs than default 0.76MB so that GC doesn't run as often
+  (setq sentence-end-double-space nil)
+  (setq read-process-output-max (* 1024 1024)) ;; 1mb Increase the amount of data which Emacs reads from the process
+  (setq create-lockfiles nil)
+  (setq backup-directory-alist  '((".*" . "/home/azmat/.emacs_backups")))
+  (setq auth-sources '("~/.authinfo.gpg"))
+  (setq eldoc-echo-area-use-multiline-p nil)
+  (setq isearch-lazy-count t)
+  (setq make-backup-files nil)
+  (setq package-install-upgrade-built-in t)
+  (setq use-package-compute-statistics t)
+  (setq compilation-scroll-output t)
+  (setq compilation-auto-jump-to-next t)
+  (setq compilation-max-output-line-length nil)
+  (setq desktop-dirname "~/.emacs.d/desktop/"
+	desktop-path (list desktop-dirname))
+  (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter)
+  ;; (add-hook 'prog-mode-hook #'indent-bars-mode)
+  ;; (add-hook 'after-init-hook #'org-agenda-list)
+  (setq-default dired-listing-switches "-lha")
+  (setq-default flymake-mode nil)
+
+  (fset 'yes-or-no-p 'y-or-n-p)
+  (scroll-bar-mode -1)
+  (tool-bar-mode -1)          ; Disable the toolbar
+  (tooltip-mode -1)           ; Disable tooltips
+  (global-visual-line-mode 1)
+  (add-hook 'text-mode-hook #'visual-line-mode)
+  (add-hook 'org-mode-hook #'visual-line-mode)
+  ;; (set-fringe-mode 5)
+  (menu-bar-mode -1)            ; Disable the menu bar
+  (electric-pair-mode)	      ; completes delimiters like ({["'"]})
+  (show-paren-mode)
+					; (electric-indent-mode 1)
+					; UbuntuMonoNerdFont
+  (set-face-attribute 'default nil :font "IosevkaTermNerdFontMono" :height 140)
+  (add-to-list 'default-frame-alist '(font . "IosevkaTermNerdFontMono-14"))
+  (global-set-key (kbd "M-[") 'universal-argument))
+
 (use-package envrc
   :hook (after-init . envrc-global-mode))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-vc-selected-packages
-   '((lsp-bridge :vc-backend Git :url
-		 "https://github.com/manateelazycat/lsp-bridge"))))
+   '((corfu-terminal :vc-backend Git :url
+		     "https://codeberg.org/akib/emacs-corfu-terminal"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -37,6 +37,7 @@
       "battery",
       "backlight",
     "custom/gammastep",
+    "bluetooth",
         "tray",
 	"custom/notificaton"
     ],
@@ -216,5 +217,16 @@
   "format-icons": ["\uf0f3"],
   "tooltip-format":"Notifications",
   "on-click": "swaync-client -t -sw"
-  }
+  },
+  "bluetooth": {
+	"format": "  ",
+	"format-connected": "  ",
+	"format-connected-battery": "  {device_battery_percentage}%",
+	// "format-device-preference": [ "device1", "device2" ], // preference list deciding the displayed device
+	"tooltip-format": "{controller_alias}\t{controller_address}\n\n{num_connections} connected",
+	"tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}",
+	"tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+	"tooltip-format-enumerate-connected-battery": "{device_alias}\t{device_address}\t{device_battery_percentage}%",
+	"on-click": "blueman-manager"
+	}
 }

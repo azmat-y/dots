@@ -39,7 +39,8 @@
       "text": "Label Text"
     },
     "mpris": {
-      "image-size": 26,
+      "image-size": 96,
+      "image-radius": 12,
       "blur": true
     },
     "volume": {

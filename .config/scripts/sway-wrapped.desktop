@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Sway (Wrapped)
+Comment=Sway with proper environment variables
+Exec=/home/azmat/.config/scripts/sway-run
+Type=Application
+DesktopNames=sway

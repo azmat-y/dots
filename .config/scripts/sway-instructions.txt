@@ -1,0 +1,2 @@
+
+Place sway-wrapped.desktop into /usr/share/wayland-sessions/

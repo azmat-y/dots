@@ -1,0 +1,12 @@
+#!/bin/sh
+
+echo "Sway-run script started at $(date)" > ~/.var/log/sway_script_log.txt
+# Session
+export XDG_SESSION_TYPE=wayland
+export XDG_CURRENT_DESKTOP=sway
+export QT_QPA_PLATFORM=wayland
+
+
+echo "Ran sway-run script successfully by $(date)" > ~/.var/log/sway_script_log.txt
+
+exec systemd-cat --identifier=sway sway "$@"

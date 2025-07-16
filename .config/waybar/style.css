@@ -51,7 +51,7 @@
     background-color: #000000;
     color: #ffffff;
     font-family: CaskaydiaCoveNerdFont, UbuntuMonoNerdFont, Jetbrainsmononerdfontmono, Cantarell, Noto Sans, sans-serif;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 /* Each module */
@@ -238,4 +238,8 @@
 }
 #custom-powerprofile.unknown {
     color: #ffffff;
+}
+#bluetooth.connected {
+    background-color: transparent;
+    color: blue;
 }

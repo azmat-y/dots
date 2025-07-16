@@ -5,7 +5,7 @@
 # program = "/bin/zsh"
 
 [general]
-import = ["~/.config/alacritty/themes/themes/ayu_dark.toml"]
+import = ["~/.config/alacritty/themes/ayu_dark.toml"]
 
 [font]
 size=15
