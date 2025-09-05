@@ -194,10 +194,12 @@
   "o s" '(az/open-temp-org-file :wk "scratchpad"))
 
 (use-package projectile
-  :commands (projectile-find-dir projectile-find-file)
+  :ensure t
   :init
   (setq projectile-indexing-method 'hybrid)
   (setq projectile-project-search-path '("/home/azmat/Programming/Projects"))
+  :config
+  (projectile-mode)
   :bind-keymap
   ("C-c p" . projectile-command-map))
 
@@ -285,6 +287,7 @@
 				   (python "https://github.com/tree-sitter/tree-sitter-python")
 				   (c "https://github.com/tree-sitter/tree-sitter-c")
 				   (java "https://github.com/tree-sitter/tree-sitter-java")
+				   (go "https://github.com/tree-sitter/tree-sitter-go")
 				   (bash "https://github.com/tree-sitter/tree-sitter-bash")
 				   (javascript "https://github.com/tree-sitter/tree-sitter-javascript")))
   (major-mode-remap-alist '((c++-mode . c++-ts-mode)
@@ -432,7 +435,23 @@
   (add-hook 'dape-compile-hook 'kill-buffer)
 
   ;; Projectile users
-  (setq dape-cwd-fn 'dape--default-cwd))
+  (setq dape-cwd-fn 'dape--default-cwd)
+  (add-to-list 'dape-configs
+               `(debugpy-python3
+                 modes (python-mode python-ts-mode)
+                 command "python3"
+                 command-args ("-m" "debugpy.adapter")
+                 command-cwd dape-cwd-fn
+                 :type "executable"
+                 :request "launch"
+                 :python "/usr/bin/python3"
+                 :program dape-buffer-default
+                 :console "integratedTerminal"
+                 :cwd dape-cwd-fn
+                 :args []
+                 :stopOnEntry nil
+                 :showReturnValue t
+                 :justMyCode t)))
 
 ;; Enable repeat mode for more ergonomic `dape' use
 (use-package repeat
@@ -476,7 +495,8 @@
   (setq org-ellipsis " ▼")
   (setq org-startup-indented t)
   (setq org-clock-sound t)
-  (setq org-agenda-files '("~/Org/agenda.org"))
+  (setq org-agenda-files '("~/Org/agenda.org" "~/Org/day-agenda.org"))
+  (setq org-clock-sound "~/Downloads/temp/beep-01.wav")
   (setq-default org-todo-keywords
 		'((sequence "TODO" "FEEDBACK" "VERIFY" "PROJECT IDEA" "|" "DONE" "SCRAPED")))
 
@@ -541,50 +561,49 @@
 
      ("\\*compilation\\*"
       display-buffer-same-window
-      ;; display-buffer-in-direction
-      ;; (direction . bottom)
-      ;; (window . root)
-      ;; (window-height . 0.50)
-      ))
+      display-buffer-in-direction
+      (direction . bottom)
+      (window . root)
+      (window-height . 0.50))
 
-   ("\\*lsp-help\\*"
-    display-buffer-in-side-window
-    (side . right)
-    (window . root)
-    (window-width . 60))
+     ("\\*lsp-help\\*"
+      display-buffer-in-side-window
+      (side . right)
+      (window . root)
+      (window-width . 60))
 
 
-   ("\\*Occur\\*"
-    display-buffer-in-direction
-    (direction . bottom)
-    (window . root)
-    (window-height . 0.45))
+     ("\\*Occur\\*"
+      display-buffer-in-direction
+      (direction . bottom)
+      (window . root)
+      (window-height . 0.45))
 
-   ("\\*eldoc.*\\*"
+     ("\\*eldoc.*\\*"
 
-    ;; display-buffer-in-side-window
-    display-buffer-in-side-window
-    (side . bottom)
-    (window . root)
-    (window-height . 45))
+      ;; display-buffer-in-side-window
+      display-buffer-in-side-window
+      (side . bottom)
+      (window . root)
+      (window-height . 45))
 
-   ("\\*Help.*\\*"
-    display-buffer-in-side-window
-    (side . bottom)
-    (window . root)
-    (window-height . 45))
+     ("\\*Help.*\\*"
+      display-buffer-in-side-window
+      (side . bottom)
+      (window . root)
+      (window-height . 45))
 
-   ("\\*Python\\*"
-    display-buffer-in-side-window
-    (side . bottom)
-    (window . root)
-    (window-height 0.45))
+     ("\\*Python\\*"
+      display-buffer-in-side-window
+      (side . bottom)
+      (window . root)
+      (window-height 0.45))))
 
-   ("\\*bb-asm\\*"
-    display-buffer-in-side-window
-    (side . right)
-    (window . root)
-    (window-width . 65))))
+  ("\\*bb-asm\\*"
+   display-buffer-in-side-window
+   (side . right)
+   (window . root)
+   (window-width . 65)))
 
 (use-package popper
   :ensure t ; or :straight t
@@ -713,6 +732,15 @@
   :ensure nil
   :hook (prog-mode . display-line-numbers-mode)
   :init
+  ;; uncomment below when debugging
+  ;; (if init-file-debug
+  ;;     (setq use-package-verbose t
+  ;;           use-package-expand-minimally nil
+  ;;           use-package-compute-statistics t
+  ;;           debug-on-error t)
+  ;;   (setq use-package-verbose nil
+  ;;         use-package-expand-minimally t))
+  (setq display-line-numbers-type 'relative)
   (setq inhibit-startup-message t)
   (setq initial-scratch-message nil)
   (setq warning-minimum-level :emergency)
@@ -754,6 +782,17 @@
   (set-face-attribute 'default nil :font "IosevkaTermNerdFontMono" :height 140)
   (add-to-list 'default-frame-alist '(font . "IosevkaTermNerdFontMono-14"))
   (global-set-key (kbd "M-[") 'universal-argument))
+
+(use-package flycheck-languagetool
+  :ensure t
+  :defer t
+  :init
+  (setq flycheck-languagetool-server-jar "/usr/share/languagetool/languagetool-server.jar"))
+
+(use-package breadcrumb
+  :ensure t
+  :config
+  (breadcrumb-mode))
 
 (use-package envrc
   :hook (after-init . envrc-global-mode))
