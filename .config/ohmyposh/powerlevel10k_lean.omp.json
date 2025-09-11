@@ -6,11 +6,12 @@
         {
           "foreground": "#00C5C7",
           "properties": {
-            "time_format": "15:04:05"
+            "threshold": 500,
+            "style": "round"
           },
           "style": "plain",
-          "template": " {{ .CurrentDate | date .Format }} ",
-          "type": "time"
+          "template": " {{ .FormattedMs }} ",
+          "type": "executiontime"
         }
       ],
       "type": "rprompt"
