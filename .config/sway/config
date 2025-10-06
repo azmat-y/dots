@@ -1,11 +1,11 @@
 # Import the necessary variables into the systemd user environment.
 # This allows services like xdg-desktop-portal-wlr to start correctly.
-exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
-# It's also good practice to update the D-Bus environment for applications
-exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
-
-exec --no-startup-id systemctl --user restart xdg-desktop-portal
-exec --no-startup-id systemctl --user restart xdg-desktop-portal-wlr
+# exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
+# # It's also good practice to update the D-Bus environment for applications
+# exec dbus-update-activation-environment --systemd WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
+# 
+# exec --no-startup-id systemctl --user restart xdg-desktop-portal
+# exec --no-startup-id systemctl --user restart xdg-desktop-portal-wlr
 
 # Default config for sway
 #
@@ -40,8 +40,8 @@ set $menu $rofi_cmd -show combi -combi-modes "window,drun,run" -modes combi#run 
 #
 # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
 # Requires: desktop-backgrounds-compat, swaybg
-# output * bg /usr/share/backgrounds/default.png fill
-output * bg $HOME/Downloads/wallpapers/pexels-brittany-17733-87812.jpg fill
+output * bg /usr/share/backgrounds/default.jxl fill
+# output * bg $HOME/Downloads/wallpapers/pexels-brittany-17733-87812.jpg fill
 #
 # Example configuration:
 #
@@ -250,7 +250,7 @@ include '$(/usr/libexec/sway/layered-include "/usr/share/sway/config.d/*.conf" "
 
 # launch programs
 exec swaync
-exec waybar
+# exec waybar
 exec --no-startup-id sh -c 'while ! pgrep waybar > /dev/null; do sleep 0.5; done; sleep 1; flameshot'
 exec nm-applet
 # exec blueman-applet
@@ -267,18 +267,19 @@ exec /usr/libexec/polkit-mate-authentication-agent-1
 # For some reason dnd remains on by default, so disable it
 exec_always swaync-client -df
 
+# these are already binded in Fedora
 # Media Control
-bindsym XF86AudioRaiseVolume exec pamixer -i 5
-bindsym XF86AudioLowerVolume exec pamixer -d 5
-bindsym XF86AudioMicMute exec pamixer --default-source -m
-bindsym XF86AudioMute exec pamixer -t
-bindsym XF86AudioPlay exec playerctl play-pause
-bindsym XF86AudioPause exec playerctl play-pause
-bindsym XF86AudioNext exec playerctl next
-bindsym XF86AudioPrev exec playerctl previous
-# Brightness Control
-bindsym XF86MonBrightnessUp exec brightnessctl set +5%
-bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
+# bindsym XF86AudioRaiseVolume exec pamixer -i 5
+# bindsym XF86AudioLowerVolume exec pamixer -d 5
+# bindsym XF86AudioMicMute exec pamixer --default-source -m
+# bindsym XF86AudioMute exec pamixer -t
+# bindsym XF86AudioPlay exec playerctl play-pause
+# bindsym XF86AudioPause exec playerctl play-pause
+# bindsym XF86AudioNext exec playerctl next
+# bindsym XF86AudioPrev exec playerctl previous
+# # Brightness Control
+# bindsym XF86MonBrightnessUp exec brightnessctl set +5%
+# bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
 
 # custom shortcuts
 bindsym Ctrl+Shift+k exec playerctl play-pause
