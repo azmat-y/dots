@@ -45,10 +45,10 @@ alias bat0='upower --enumerate | rg battery | xargs upower -i' #Battery report c
 source /home/azmat/.zshplugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 # auto suggestion
 source /home/azmat/.zshplugins/zsh-autosuggestions/zsh-autosuggestions.zsh
- 
+
 # dotfile bare repo
 alias dotgit='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
-
+dotgit config --local status.showUntrackedFiles no
 # install zoxide;
 eval "$(zoxide init --cmd cd zsh)"
 # show execution time on right
