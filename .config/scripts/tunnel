@@ -1,0 +1,49 @@
+#!/bin/bash
+
+mkdir -p $HOME/.var/log
+exec >> "$HOME/.var/log/ec2-tunnel.log" 2>&1
+export AWS_PAGER=""
+NOW=$(date '+%F_%H:%M:%S')
+action="$1"
+instance_id="i-055a8ce630ad1bd13"
+
+if [ -z $action ]; then
+    echo "Usage: $0 {on|off}"
+    exit 1
+fi
+
+if [ $action == "off" ]; then
+    aws ec2 stop-instances --instance-ids $instance_id
+    exit 0
+fi
+
+if [ $action != "on" ]; then
+    echo "Invalid argument: $action"
+    echo "Usage: $0 {on|off}"
+    exit 1
+fi
+
+cur_state=$(aws ec2 describe-instances \
+		 | jq -r '.Reservations[0].Instances[0].PublicDnsName')
+sleep 3
+if [ -z $cur_state ]; then
+    aws ec2 start-instances --instance-ids $instance_id
+fi
+
+while true; do
+    state=$(aws ec2 describe-instance-status \
+		| jq -r '.InstanceStatuses[0].InstanceState.Name')
+
+    if [ "$state" == "running" ]; then
+	echo "$NOW: Instance is running"
+	break
+    fi
+    sleep 3
+done
+
+public_dns=$(aws ec2 describe-instances \
+		 | jq -r '.Reservations[0].Instances[0].PublicDnsName')
+
+ssh -i /home/azmat/Downloads/keys/tunnel.pem -D 8080 -C -N \
+    -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    ubuntu@$public_dns -v

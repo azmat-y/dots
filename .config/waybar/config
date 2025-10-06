@@ -37,7 +37,8 @@
       "battery",
       "backlight",
     "custom/gammastep",
-    "bluetooth",
+      "custom/ec2sshtunnel",
+//    "bluetooth",
         "tray",
 	"custom/notificaton"
     ],
@@ -70,8 +71,8 @@
     "idle_inhibitor": {
     "format": "{icon}",
     "format-icons": {
-        "activated": " ",
-        "deactivated": " "
+        "activated": "  ",
+        "deactivated": "  "
     	}
     },
 
@@ -191,7 +192,7 @@
     },
 
     "custom/powerprofile": {
-    "format": " {}",
+    "format": " {text}",
     "exec": "$HOME/.config/waybar/custom_modules/powerprofile_indicator.sh",
     "interval": 5,
     "return-type": "json",
@@ -217,6 +218,13 @@
   "format-icons": ["\uf0f3"],
   "tooltip-format":"Notifications",
   "on-click": "swaync-client -t -sw"
+  },
+  "custom/ec2sshtunnel": {
+  "return-type": "json",
+  "interval": 5,
+  "format":   "  ",
+  "exec": "~/.config/waybar/custom_modules/ec2tunnel_status.sh",
+  "on-click":  "~/.config/waybar/custom_modules/ec2tunnel.sh"
   },
   "bluetooth": {
 	"format": "  ",
