@@ -9,7 +9,7 @@
 
 ;; load files
 (load (expand-file-name "~/.emacs.d/env.el"))
-(load (expand-file-name "~/.emacs.d/utility.el"))
+;; (load (expand-file-name "~/.emacs.d/utility.el"))
 
 ;; my functions efs, ..
 (defun efs/display-startup-time ()
