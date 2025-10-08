@@ -362,7 +362,7 @@
   (setq-default
    eglot-workspace-configuration
    '(:basedpyright (
-		    :typeCheckingMode "off"))))
+		    :typeCheckingMode "basic"))))
 
 (use-package eglot-hierarchy
   :ensure nil
@@ -458,12 +458,16 @@
   :commands (enlarge-window shrink-window-horizontally dape)
   :hook (dape-start . repeat-mode))
 
+
 (use-package recentf
   :ensure nil
-  :hook (after-init . recentf-mode)
+  :hook (kill-emacs . #'recentf-save-list)
+
   :init
   (setq recentf-max-saved-items 100)
-  (setq recentf-auto-cleanup 'never))
+  (add-hook 'emacs-startup-hook #'recentf-mode)
+  :config
+  (recentf-mode 1))
 
 (use-package org-superstar
   :config
@@ -690,6 +694,7 @@
 	  "-assume-filename"
 	  (or (apheleia-formatters-local-buffer-file-name)
 	      (apheleia-formatters-mode-extension) ".c")))
+  (setf (alist-get 'python-ts-mode apheleia-mode-alist) '(ruff))
   (apheleia-global-mode t))
 
 ;; (use-package indent-bars
@@ -803,8 +808,12 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-vc-selected-packages
-   '((corfu-terminal :vc-backend Git :url
-		     "https://codeberg.org/akib/emacs-corfu-terminal"))))
+   '((ultra-scroll :vc-backend Git :url
+		   "https://github.com/jdtsmith/ultra-scroll")
+     (eglot-booster :vc-backend Git :url
+		    "https://github.com/jdtsmith/eglot-booster")
+     (eglot-hierarchy :vc-backend Git :url
+		      "https://github.com/dolmens/eglot-hierarchy"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
