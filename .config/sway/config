@@ -40,8 +40,9 @@ set $menu $rofi_cmd -show combi -combi-modes "window,drun,run" -modes combi#run 
 #
 # Default wallpaper (more resolutions are available in /usr/share/backgrounds/sway/)
 # Requires: desktop-backgrounds-compat, swaybg
-output * bg /usr/share/backgrounds/default.jxl fill
-# output * bg $HOME/Downloads/wallpapers/pexels-brittany-17733-87812.jpg fill
+# output * bg /usr/share/backgrounds/default.jxl fill
+
+output * bg $HOME/Downloads/wallpapers/Sky.png fill
 #
 # Example configuration:
 #
