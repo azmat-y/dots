@@ -347,6 +347,7 @@
   ;; Option 1: Specify explicitly to use Orderless for Eglot
   (setq completion-category-overrides '((eglot (styles orderless))
 					(eglot-capf (styles orderless))))
+  (setq eglot-report-progress 'message)
   :config
   (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
   (add-to-list 'eglot-server-programs
@@ -354,7 +355,7 @@
 	         . ("basedpyright-langserver" "--stdio"))
 	       '((c-ts-mode c++-ts-mode c-mode c++-mode)
                  . ("clangd"
-                    "-j=3"
+                    "-j=4"
                     "--log=verbose"
                     "--background-index"
                     "--clang-tidy"
@@ -526,7 +527,7 @@
 	   "Daily Agenda"
 	   entry
 	   (file "~/Org/day-agenda.org")
-	   "* Entered on %u\n %i%?")
+	   "* TODO Additional Tasks for the day [/]\n SCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n %i%?")
 	  ("N"
 	   "Next Day Agenda"
 	   entry
