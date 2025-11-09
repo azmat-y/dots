@@ -1,5 +1,8 @@
 ;; -*- lexical-binding: t -*-
 
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(when (file-exists-p custom-file)
+  (load custom-file))
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("elpa" . "https://elpa.gnu.org/packages/")
 			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
@@ -9,6 +12,7 @@
 
 ;; load files
 (load (expand-file-name "~/.emacs.d/env.el"))
+(load "/home/azmat/.emacs.d/customizations/az-org.el")
 ;; (load (expand-file-name "~/.emacs.d/utility.el"))
 
 ;; my functions efs, ..
@@ -82,7 +86,7 @@
 (use-package evil-collection
   :after evil
   :config
-  (setq evil-collection-mode-list '(dashboard dired ibuffer))
+  (setq evil-collection-mode-list '(vterm ibuffer))
   (evil-collection-init))
 
 (use-package general
@@ -190,7 +194,7 @@
   "o c" '(org-capture :wk "org-capture")
   "o f" '(org-open-at-point :wk "org-open-at-point")
   "o a" '(org-agenda :wk "org-agenda")
-  "o t" '(org-timer-set-timer :wk "org-timer")
+  "o t" '(az-org-timer :wk "org-timer")
   "o s" '(az/open-temp-org-file :wk "scratchpad"))
 
 (use-package projectile
@@ -527,12 +531,14 @@
 	   "Daily Agenda"
 	   entry
 	   (file "~/Org/day-agenda.org")
-	   "* TODO Additional Tasks for the day [/]\n SCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n %i%?")
+	   "* TODO Additional Tasks for the day [/]\n SCHEDULED:
+  %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n %i%?")
 	  ("N"
 	   "Next Day Agenda"
 	   entry
 	   (file "~/Org/day-agenda.org")
-	   "* TODO Daily Tasks for the day [/]\n SCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+1d\"))\n %i%?")
+	   "* TODO Daily Tasks for the day [/]\n SCHEDULED:
+  %(org-insert-time-stamp (org-read-date nil t \"+1d\"))\n %i%?")
 	  ("K"
 	   "Knowledgebase"
 	   entry
@@ -621,7 +627,7 @@
         '("\\*Messages\\*"
           "Output\\*$"
 	  "\\*Async Shell Command\\*"
-	  ;; "^\\*vterm.*\\*$"  vterm-mode  ;vterm as a popup
+	  "^\\*vterm.*\\*$"  vterm-mode  ;vterm as a popup
 	  "\\*lsp-help\\*" lsp-help-mode
   	  "\\*eldoc\\*" special-mode
 	  xref--xref-buffer-mode
@@ -683,7 +689,6 @@
   (ultra-scroll-mode 1))
 
 ;; keep customize edits separate
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (add-hook 'emacs-startup-hook #'efs/display-startup-time)
 (put 'upcase-region 'disabled nil)
 
@@ -721,7 +726,7 @@
 
 (use-package dired-rsync
   :bind (:map dired-mode-map
-              ("r" . dired-rsync)))
+	      ("r" . dired-rsync)))
 
 (use-package org-download
   :hook (org-mode . org-download-enable)
@@ -802,23 +807,3 @@
 
 (use-package envrc
   :hook (after-init . envrc-global-mode))
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-vc-selected-packages
-   '((ultra-scroll :vc-backend Git :url
-		   "https://github.com/jdtsmith/ultra-scroll")
-     (eglot-booster :vc-backend Git :url
-		    "https://github.com/jdtsmith/eglot-booster")
-     (eglot-hierarchy :vc-backend Git :url
-		      "https://github.com/dolmens/eglot-hierarchy"))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-(put 'narrow-to-region 'disabled nil)
